@@ -105,6 +105,11 @@ class Compiler {
 					charSequence = null;
 				}
 				
+                                if (isNumber(c)){
+                                        if (charSequence == null){
+                                            
+                                        }
+                                }
 				// Check if the character is part of a special operator
 				if (!isLastChar) {
 					char nextChar = line.charAt(index + 1);
@@ -183,4 +188,8 @@ class Compiler {
 		
 		return isDelimeter(possibleStopper) || possibleStopper == ' ';
 	}
+        private boolean isNumber(char possibleNumber){
+            
+            return Character.isDigit(possibleNumber);
+        }
 }
