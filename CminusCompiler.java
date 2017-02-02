@@ -3,8 +3,10 @@ Cminus Compiler part 1, Lexical Analyzer
 This is meant to parse the input and tokenize
 the inputs.
  */
-import java.util.*;
-import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.Arrays;
 
 public class CminusCompiler {
 
@@ -16,249 +18,169 @@ public class CminusCompiler {
         }
 
         String fileName = args[0];
+        Compiler compiler = new Compiler(fileName);
+        compiler.processFile();
+    }
+}
+
+class Compiler {
+	
+	private String fileName;
+	private int commentCount;
+	
+	public Compiler(String fileName) {
+		
+		this.fileName = fileName;
+	}
+	
+	public void processFile() {
+		
         BufferedReader bufferedReader = null;
         String nextLine;
         try {
-
             bufferedReader = new BufferedReader(new FileReader(fileName));
-
-            //will keep scanning in lines until the end of file is reached
+            
             while ((nextLine = bufferedReader.readLine()) != null) {
-                System.out.println("Input " + nextLine);
-                // scanNextInput(nextLine);
-
-                int i;
-                int commentCount = 0;
-
-                // String nextInput = scanNextSingleInput(nextLine);
-                char[] nextSingleInput = nextLine.toCharArray();
-                for (i = 0; i < nextLine.length(); i++) {
-
-                    nextSingleInput[i] = nextLine.charAt(i);
-                    
-                    String initialCheck = String.valueOf(nextSingleInput);
-                    StringBuilder buildSingleInput = new StringBuilder();
-                    
-                    char firstInput = nextSingleInput[i];
-                     buildSingleInput.append(firstInput);
-                     String singleInput = buildSingleInput.toString();
-                    
-                    if (isItADelimeter(initialCheck) == true) {
-                        StringBuilder buildString = new StringBuilder();
-                         
-
-                        
-                        char followingInput = nextSingleInput[++i];
-
-                        //combines the 2 characters from above
-                        buildString.append(firstInput);
-                        buildString.append(followingInput);
-
-                       
-
-                        //Converts Stringbuilder to String so can pass to methods to compare
-                        String possibleComment = buildString.toString();
-                        
-
-                        if (isItAComment(possibleComment) == true) {
-
-                            String startComment = "/*";
-                            String endComment = "*/";
-
-                            if (possibleComment.equals(startComment)) {
-                                commentCount++;
-                            } else if (possibleComment.equals(endComment)) {
-                                commentCount--;
-                            } else if (commentCount == 0) {
-                                return;
-                            }
-                        }
-                        if (commentCount < 1) {
-
-                            if (isItASpecialOperator(possibleComment) == true) {
-                                String gThanEqual = ">=";
-                                String lThanEqual = "<=";
-                                String notEqual = "!=";
-                                String equivalent = "==";
-                                if (possibleComment.equals(gThanEqual)) {
-                                    System.out.println(gThanEqual);
-                                } else if (possibleComment.equals(lThanEqual)) {
-                                    System.out.println(lThanEqual);
-                                } else if (possibleComment.equals(notEqual)) {
-                                    System.out.println(notEqual);
-                                } else {
-                                    System.out.println(equivalent);
-                                }
-                            } else if (isItAnError(singleInput) == true) {
-                                System.out.println("Error " + singleInput);
-                            }
-
-                        }
-                    }
-                }
-                if (commentCount < 1) {
-                    if(Character.isAlphabetic()
-                }
-
+            	processLine(nextLine);
             }
-
-        } catch (IOException e) {
-            System.out.println("Could not find this file");
-        } finally {
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException e) {
-                }
-            }
+        } catch (Exception e) {
+        	
         }
+	}
+	
+	private void processLine(String line) {
+		
+		String charSequence = null;
+		String errorSequence = null;
+		
+		if (!line.isEmpty()) {
+			System.out.println("INPUT: " + line);
+		}
+		
+		for (int index = 0; index < line.length(); index++) {
+			
+			char c = line.charAt(index);
+			boolean isLastChar = index == line.length() - 1;
+			
+			if (errorSequence != null) {
+				if (shouldStopError(c)) {
+					System.out.println("Error: " + errorSequence);
+					errorSequence = null;
+				} else {
+					errorSequence += String.valueOf(c);
+					continue;
+				}
+			}
+			
+			if (commentCount == 0) {
+				
+				// Check if the character is the beginning of a comment
+				if (c == '/') {
+					if (!isLastChar) {
+						char nextChar = line.charAt(index + 1);
+						if (nextChar == '/') {
+							return;
+						} else if (nextChar == '*') {
+							commentCount++;
+							index++;
+							continue;
+						}
+					}
+				}
+				
+				// Check if the character is part of a character sequence
+				if (isLetter(c)) {
+					if (charSequence == null) {
+						charSequence = String.valueOf(c);
+					} else {
+						charSequence += String.valueOf(c);
+					}
+					continue;
+				} else if (charSequence != null) {
+					if (isKeyword(charSequence)) {
+						System.out.println("keyword: " + charSequence);
+					} else {
+						System.out.println("ID: " + charSequence);
+					}
+					charSequence = null;
+				}
+				
+				// Check if the character is part of a special operator
+				if (!isLastChar) {
+					char nextChar = line.charAt(index + 1);
+					String possibleOperator = new StringBuilder().append(c).append(nextChar).toString();
+					if (isSpecialOperator(possibleOperator)) {
+						System.out.println(possibleOperator);
+						index++;
+						continue;
+					}
+				}
+				
+				// Check if the character is a delimeter
+				if (isDelimeter(c)) {
+					System.out.println(c);
+					continue;
+				}
+				
+				// Ignore spaces
+				if (c == ' ') {
+					continue;
+				}
+				
+				// We have now encountered an error
+				errorSequence = String.valueOf(c);
+			} else {
+				// Check if the character is the start or end of a comment
+				if (!isLastChar) {
+					char nextChar = line.charAt(index + 1);
+					if (c == '/' && nextChar == '*') {
+						commentCount++;
+						index++;
+					} else if (c == '*' && nextChar == '/') {
+						commentCount--;
+						index++;
+					}
+				}
+			}
+		}
+		
+		if (errorSequence != null) {
+			System.out.println("Error: " + errorSequence);
+		}
+	}
+	
+	private boolean isDelimeter(char possibleDelimeter) {
 
+        Character[] delimeters = new Character[]
+                {'+', '-', '/', '*',
+                 '=', '>', '<', '(', 
+                 ')', '[', ']', '{', 
+                 '}', ',', ';'};
+
+        return Arrays.asList(delimeters).contains(possibleDelimeter);
     }
-    //    private static void scanNextInput(String nextLine) {
-    //        int i;
-    //        int commentCount = 0;
-    //        // String nextInput = scanNextSingleInput(nextLine);
-    //        char[] nextSingleInput = nextLine.toCharArray();
-    //        for (i = 0; i < nextLine.length(); i++) {
-    //            nextSingleInput[i] = nextLine.charAt(i);
-    //            String initialCheck = String.valueOf(nextSingleInput);
-    //
-    //            if (isItADelimeter(initialCheck) == true) {
-    //                StringBuilder buildString = new StringBuilder();
-    //                //gets the first character and second
-    //                char firstInput = nextSingleInput[i];
-    //                char followingInput = nextSingleInput[++i];
-    //                //combines the 2 characters from above
-    //                buildString.append(firstInput);
-    //                buildString.append(followingInput);
-    //                //Converts Stringbuilder to String so can pass to methods to compare
-    //                String possibleComment = buildString.toString();
-    //
-    //                if (isItAComment(possibleComment) == true){
-    //                    
-    //                    String lineComment = "//";
-    //                    String startComment = "/*";
-    //                    String endComment = "*/";
-    //                    
-    //                    if(possibleComment.equals(startComment)){
-    //                        commentCount++;
-    //                    }
-    //                    else if(possibleComment.equals(endComment)){
-    //                        commentCount--;
-    //                    }
-    //                    if(commentCount == 0){
-    //                        return;
-    //                    }
-    //                }
-    //                if(isItASpecialOperator(possibleComment) == true){
-    //                    
-    //                }
-    //            }
-    //        }
-    //    }
+	
+	private boolean isSpecialOperator(String possibleOperator) {
 
-    /* private static String scanNextSingleInput(String nextSingleInput){
-        
-            return;
-        }*/
-    //Checks if the input is a delimeter
-    private static boolean isItADelimeter(String input) {
-        String plus = "+";
-        String minus = "-";
-        String div = "/";
-        String mul = "*";
-        String equals = "=";
-        String gThan = ">";
-        String lThan = "<";
-        String exclamation = "!";
-        String lParen = "(";
-        String rParen = ")";
-        String lBracket = "[";
-        String rBracket = "]";
-        String lBrace = "{";
-        String rBrace = "}";
-        String comma = ",";
-        String semiColon = ";";
-
-        if (input.equals(plus)) {
-            return true;
-        } else if (input.equals(minus)) {
-            return true;
-        } else if (input.equals(div)) {
-            return true;
-        } else if (input.equals(mul)) {
-            return true;
-        } else if (input.equals(equals)) {
-            return true;
-        } else if (input.equals(gThan)) {
-            return true;
-        } else if (input.equals(lThan)) {
-            return true;
-        } else if (input.equals(exclamation)) {
-            return true;
-        } else if (input.equals(lParen)) {
-            return true;
-        } else if (input.equals(rParen)) {
-            return true;
-        } else if (input.equals(lBracket)) {
-            return true;
-        } else if (input.equals(rBracket)) {
-            return true;
-        } else if (input.equals(lBrace)) {
-            return true;
-        } else if (input.equals(rBrace)) {
-            return true;
-        } else if (input.equals(comma)) {
-            return true;
-        } else if (input.equals(semiColon)) {
-            return true;
-        } else {
-            return false;
-        }
+		String[] specialOperators = new String[] {">=", "<=", "!=", "=="};
+		
+        return Arrays.asList(specialOperators).contains(possibleOperator);
     }
-
-    private static boolean isItAComment(String possibleComment) {
-        String lineComment = "//";
-        String startComment = "/*";
-        String endComment = "*/";
-
-        if (possibleComment.equals(lineComment)) {
-            return true;
-        } else if (possibleComment.equals(startComment)) {
-            return true;
-        } else if (possibleComment.equals(endComment)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private static boolean isItASpecialOperator(String possibleOperator) {
-
-        String gThanEqual = ">=";
-        String lThanEqual = "<=";
-        String notEqual = "!=";
-        String equivalent = "==";
-
-        if (possibleOperator.equals(gThanEqual)) {
-            return true;
-        } else if (possibleOperator.equals(lThanEqual)) {
-            return true;
-        } else if (possibleOperator.equals(notEqual)) {
-            return true;
-        } else if (possibleOperator.equals(equivalent)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private static boolean isItAnError(String possibleError) {
-        String exclamation = "!";
-        if (possibleError.equals(exclamation)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	
+	private boolean isLetter(char possibleLetter) {
+		
+		return Character.isLetter(possibleLetter);
+	}
+	
+	private boolean isKeyword(String possibleKeyword) {
+		
+		String[] keywords =  new String[] {"int", "void", "else", "return", "if", "while", "float"};
+		
+		return Arrays.asList(keywords).contains(possibleKeyword);
+	}
+	
+	private boolean shouldStopError(char possibleStopper) {
+		
+		return isDelimeter(possibleStopper) || possibleStopper == ' ';
+	}
 }
