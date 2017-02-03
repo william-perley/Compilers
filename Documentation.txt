@@ -1,0 +1,20 @@
+William Perley N00636615 COP4620
+
+Part 1 of C- Compiler, Lexical Analyzer
+Due 2/2/17 Submitted 2/2/17
+
+
+
+Program is designed to take in a file and look through
+the file and tokenize what it is available as well as 
+reporting any errors while tokenizing. The program will
+take in the file, and break the file down line by line
+and further break down each line into individual characters.
+The characters are then analyzed into a character sequence
+that will then compare to either delimeters, keywords, or 
+numbers and then determine if it is a valid input or return
+what kind of input it is.  The comment count is started at 0 
+and will increment everytime there is a "/*" and decrement 
+when there is a "*/" to allow for nested comments. An error is
+reported from when the error first occurs until the next
+delimeter or space. 
