@@ -60,7 +60,14 @@ class Compiler {
 
         for (int index = 0; index < line.length(); index++) {
 
+            char b;
             char c = line.charAt(index);
+            if (index > 0) {
+                b = line.charAt(index - 1);
+
+            } else {
+                b = 'a';
+            }
             boolean isLastChar = index == line.length() - 1;
 
             if (errorSequence != null) {
@@ -98,35 +105,28 @@ class Compiler {
                     }
                     continue;
                 } else if (charSequence != null) {
-                    if (isKeyword(charSequence)) {
-                        System.out.println("keyword: " + charSequence);
-                    } else {
-                        System.out.println("ID: " + charSequence);
-                    }
+                    printCharSequence(charSequence);
                     charSequence = null;
-                }
-
-                else if (isNumber(c)) {
+                } else if (isNumber(c)) {
                     if (numSequence == null) {
                         numSequence = String.valueOf(c);
                     } else {
                         numSequence += String.valueOf(c);
                     }
                     continue;
+                } else if (((c == '-') || (c == '+')) && (b == 'E')) {
+                    numSequence += String.valueOf(c);
+                    continue;
                 } else if (numSequence != null) {
-                    
-                    if (isValidNumber(numSequence)) {
-                        if (isFloat(numSequence)) {
-                            System.out.println("Float: " + numSequence);
-                        } else {
-                            System.out.println("Int: " + numSequence);
-                        }
-                    } else {
-                        System.out.println("Error: " + numSequence);
-                    }
+                    printNumber(numSequence);
+
                     numSequence = null;
-                    
+
                 }
+
+//                else if ((c == '-') && (b == 'E')){
+//                    numSequence += String.valueOf(c);
+//                }
                 // Check if the character is part of a special operator
                 if (!isLastChar) {
                     char nextChar = line.charAt(index + 1);
@@ -168,6 +168,32 @@ class Compiler {
 
         if (errorSequence != null) {
             System.out.println("Error: " + errorSequence);
+        }
+        if (charSequence != null) {
+            printCharSequence(charSequence);
+        }
+        if (numSequence != null) {
+            printNumber(numSequence);
+        }
+    }
+
+    private void printCharSequence(String charSequence) {
+        if (isKeyword(charSequence)) {
+            System.out.println("keyword: " + charSequence);
+        } else {
+            System.out.println("ID: " + charSequence);
+        }
+    }
+
+    private void printNumber(String numSequence) {
+        if (isValidNumber(numSequence)) {
+            if (isFloat(numSequence)) {
+                System.out.println("Float: " + numSequence);
+            } else {
+                System.out.println("Int: " + numSequence);
+            }
+        } else {
+            System.out.println("Error: " + numSequence);
         }
     }
 
@@ -216,40 +242,34 @@ class Compiler {
 
         CharSequence E = "E";
         CharSequence Period = ".";
+        CharSequence Negative = "-";
         int eCounter = 0;
         int periodCounter = 0;
-//        int e = validNumber.indexOf("E");
-//        int p = validNumber.indexOf(".");
-//
-//        if ((e == 0) || (e == validNumber.length()-1)){
-//            return false;
-//        }
-//        if ((p == 0) || (p == (validNumber.length() - 1))) {
-//            return false;
-//        }
-        for (int i = validNumber.length()-1; i>=0; i--){
-            if (validNumber.charAt(i) == 'E'){
+
+        for (int i = validNumber.length() - 1; i >= 0; i--) {
+            if (validNumber.charAt(i) == 'E') {
                 eCounter++;
             }
-            if (validNumber.charAt(i) == '.'){
+            if (validNumber.charAt(i) == '.') {
                 periodCounter++;
             }
         }
-        if((eCounter <= 1) && (periodCounter <= 1)){
-           int en = validNumber.indexOf('E');
-           int pn = validNumber.indexOf('.');
-           if (pn >= en){
-                if(!(pn== 0) && !(pn == validNumber.length()-1)){
-               return true;
+        if ((eCounter <= 1) && (periodCounter <= 1)) {
+            int en = validNumber.indexOf('E');
+            int pn = validNumber.indexOf('.');
+
+            if ((pn >= 0) && (en < 0)) {
+                en = validNumber.length() + 1;
+            }
+
+            if (pn <= en) {
+                if (!(pn == 0) && !(pn == validNumber.length() - 1) && !(en == 0) && !(en == validNumber.length() - 1)) {
+                    return true;
                 }
-               if (!(en == 0) && !(en == validNumber.length()-1)){
-               return true;   
-               }
-               
-           }else {
+            }else {
                return false;
            }
-        } else{
+        } else {
             return false;
         }
         return false;
@@ -259,9 +279,7 @@ class Compiler {
 
         CharSequence E = "E";
         CharSequence Period = ".";
-       
-        
-        
+
         if (floatNumber.contains(E)) {
             return true;
         } else if (floatNumber.contains(Period)) {
