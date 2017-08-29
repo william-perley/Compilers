@@ -1,8 +1,12 @@
-/*William Perley n00636615
-Cminus Compiler part 1, Lexical Analyzer
-This is meant to parse the input and tokenize
-the inputs.
- */
+//William Perley n00636615
+
+//Cminus Compiler part 1, Lexical Analyzer
+
+//This is meant to parse the input and tokenize
+
+//the inputs.
+
+//
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -18,12 +22,12 @@ public class CminusCompiler {
         }
 
         String fileName = args[0];
-        Compiler compiler = new Compiler(fileName);
+        LexicalAnalyzer lexical = new LexicalAnalyzer(fileName);
         compiler.processFile();
     }
 }
 
-class Compiler {
+class LexicalAnalyzer {
 
     private String fileName;
     private int commentCount;
