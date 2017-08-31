@@ -23,7 +23,7 @@ public class CminusCompiler {
 
         String fileName = args[0];
         LexicalAnalyzer lexical = new LexicalAnalyzer(fileName);
-        compiler.processFile();
+        lexical.processFile();
     }
 }
 
@@ -32,7 +32,7 @@ class LexicalAnalyzer {
     private String fileName;
     private int commentCount;
 
-    public Compiler(String fileName) {
+    public LexicalAnalyzer(String fileName) {
 
         this.fileName = fileName;
     }
