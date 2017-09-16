@@ -1,0 +1,2 @@
+while (b!=3)
+{ int x; x=q+2; }

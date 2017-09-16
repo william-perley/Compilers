@@ -102,16 +102,29 @@ class LexicalAnalyzer {
 
                 // Check if the character is part of a character sequence
                 if (isLetter(c)) {
+                    if(numSequence != null){
+                        printNumber(numSequence);
+                        numSequence = null;
+                    }
                     if (charSequence == null) {
                         charSequence = String.valueOf(c);
                     } else {
                         charSequence += String.valueOf(c);
                     }
                     continue;
+                } else if ((charSequence != null) && (isNumber(c) == true)) {
+                    printCharSequence(charSequence);
+                    charSequence = null;
+                    numSequence= String.valueOf(c);
+                    continue;
                 } else if (charSequence != null) {
                     printCharSequence(charSequence);
                     charSequence = null;
-                } else if (isNumber(c)) {
+                }else if (isNumber(c)) {
+                    if(charSequence != null){
+                        printCharSequence(charSequence);
+                        charSequence = null;
+                    }
                     if (numSequence == null) {
                         numSequence = String.valueOf(c);
                     } else {
