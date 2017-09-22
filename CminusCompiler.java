@@ -58,8 +58,17 @@ class LexicalAnalyzer {
         String errorSequence = null;
         String numSequence = null;
 
-        if (!line.isEmpty()) {
+//         if (!line.isEmpty()) {
+//             System.out.println("INPUT: " + line);
+//         }
+
+        for (int index = 0; index < line.length(); index++){
+            
+            char c = line.charAt(index);
+            if((c != ' ') || (c != '\t')){
             System.out.println("INPUT: " + line);
+               break;
+            }
         }
 
         for (int index = 0; index < line.length(); index++) {
@@ -162,7 +171,7 @@ class LexicalAnalyzer {
                 }
 
                 // Ignore spaces
-                if (c == ' ') {
+                if ((c == ' ') || (c == '\t')) {
                     continue;
                 }
 
