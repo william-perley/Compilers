@@ -6,63 +6,71 @@ using System.Runtime.InteropServices;
 namespace Parser
 {
     class Program
-    {
-        int x = 0;
-        string[] lines = System.IO.File.ReadAllLines(@"./tokens.txt");
-        
+    {        
         static void Main(string[] args)
         {
-            Program Parser = new Program();
-            //FileBeingRead file = new FileBeingRead();
-            //file.getFile();
-            //Console.WriteLine(file.nextToken()); 
-            Console.WriteLine("The first token is " + Parser.nextToken());
-            Console.WriteLine("The second token is " + Parser.nextToken());
-            
+            FileBeingRead inputFile = new FileBeingRead();
+            Testing(inputFile);
+            Testing(inputFile);
+            Testing(inputFile);
+            Testing(inputFile);
+            Console.ReadKey();
+
         }
        
-        public void testing()
+        public static void Testing(FileBeingRead inputFile)
         {
+            Test2(inputFile);
+            string test = inputFile.NextToken();
+            Console.WriteLine("The Token is " + test);
+            Test2(inputFile);
             
             
           //  Console.WriteLine("Next token is " +y);
-        }
-        public string nextToken()
+        }   
+
+        public static void Test2(FileBeingRead inputFile)
         {
-            while ((lines[x] == null) || (lines[x] == ""))
-            {
-                x++;
-            }
-            return lines[x++];
+            string test = inputFile.NextToken();
+            Console.WriteLine("Next Token is " + test);
         }
+    }
+
+    class FileBeingRead
+    {
+        private int x = 0, y = 0;
+        private string[] lines = System.IO.File.ReadAllLines(@"./tokens.txt");
+
+        public string NextToken()
+        {
             
+            string token = lines[y];
+            while(  (y < lines.Length) && (token == "" ))
+            {
+             
+                y++;
+                token = lines[y];
+            }
+            
+            var returnedToken = token.Split(' ');
+
+
+
+            y++;
+            x = y;
+
+            return returnedToken[0];
+        }
+        public string CurrentToken()
+        {
+            return lines[x];
+        }
     }
     
 
 }
-public static class globals
-{
 
-}
 
-//class FileBeingRead
-//{
-    
-
-//    public void getFile()
-//    {
-        
-//        Console.WriteLine(lines[4]);
-//    }
-
-//    public string nextToken()
-//    {
-//        x++;
-//        return lines[++x]; 
-        
-//    }
-
-//}
 
 
 
