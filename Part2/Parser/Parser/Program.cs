@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
 
 namespace Parser
 {
@@ -24,9 +21,6 @@ namespace Parser
             string test = inputFile.NextToken();
             Console.WriteLine("The Token is " + test);
             Test2(inputFile);
-            
-            
-          //  Console.WriteLine("Next token is " +y);
         }   
 
         public static void Test2(FileBeingRead inputFile)
@@ -47,24 +41,21 @@ namespace Parser
             string token = lines[y];
             while(  (y < lines.Length) && (token == "" ))
             {
-             
                 y++;
                 token = lines[y];
             }
             
             var returnedToken = token.Split(' ');
-
-
-
             y++;
             x = y;
-
             return returnedToken[0];
         }
+
         public string CurrentToken()
         {
             return lines[x];
         }
+
     }
     
 
