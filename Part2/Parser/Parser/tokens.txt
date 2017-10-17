@@ -1,5 +1,4 @@
-*
-
+int
 /
 
 ID iiii
