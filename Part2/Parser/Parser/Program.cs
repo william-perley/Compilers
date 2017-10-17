@@ -111,6 +111,8 @@ namespace Parser
 			}
 			else
 			{
+
+				Console.WriteLine("reject in funprogram");
 				Reject();
 			}
 		}
@@ -130,6 +132,7 @@ namespace Parser
 			}
 			else
 			{
+				Console.WriteLine("reject in declarationlist");
 				Reject();
 			}
 		}
@@ -149,6 +152,7 @@ namespace Parser
 			}
 			else
 			{
+				Console.WriteLine("reject in declarationlistprime");
 				Reject();
 			}
 		}
@@ -164,6 +168,7 @@ namespace Parser
 			}
 			else
 			{
+                Console.WriteLine("reject in rulec");
 				Reject();
 			}
 		}
@@ -189,6 +194,7 @@ namespace Parser
 				}
 				else
 				{
+                    Console.WriteLine("reject in rulex");
 					Reject();
 				}
 			}
@@ -212,7 +218,7 @@ namespace Parser
 			{
 				inputFile.NextToken();
 				//Need to figure out what to do with "NUM"
-				//inputFile.NextToken();???
+				inputFile.NextToken();
 				currentToken = inputFile.CurrentToken();
 
 				if (currentToken == thirdToken)
@@ -221,6 +227,7 @@ namespace Parser
 				}
 				else
 				{
+                    Console.WriteLine("reject ruley third token");
 					Reject();
 				}
 
@@ -231,11 +238,13 @@ namespace Parser
 				}
 				else
 				{
+                    Console.WriteLine("reject ruley first token");
 					Reject();
 				}
 			}
 			else
 			{
+                Console.WriteLine("reject in ruley");
 				Reject();
 			}
 		}
@@ -251,6 +260,7 @@ namespace Parser
 			}
 			else
 			{
+                Console.WriteLine("reject rule typespecifier");
 				Reject();
 			}
 		}
@@ -268,6 +278,7 @@ namespace Parser
 			}
 			else
 			{
+                Console.WriteLine("reject rule params");
 				Reject();
 			}
 		}
@@ -289,6 +300,7 @@ namespace Parser
 			}
 			else
 			{
+                Console.WriteLine("reject rule paramlistprime");
 				Reject();
 			}
 		}
@@ -306,6 +318,7 @@ namespace Parser
 			}
 			else
 			{
+                Console.WriteLine("reject rule param");
 				Reject();
 			}
 		}
@@ -323,6 +336,7 @@ namespace Parser
 			}
 			else
 			{
+                Console.WriteLine("reject rulez");
 				Reject();
 			}
 		}
