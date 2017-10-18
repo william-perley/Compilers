@@ -217,7 +217,7 @@ class LexicalAnalyzer {
             }
         } else {
             //System.out.println("ID: " + charSequence);
-            try{writer.write("ID " + charSequence +"\n");
+            try{writer.write("id " + charSequence +"\n");
                 writer.newLine();
             }
             catch (IOException e){
@@ -230,7 +230,7 @@ class LexicalAnalyzer {
         if (isValidNumber(numSequence)) {
             if (isFloat(numSequence)) {
                 //System.out.println("Float: " + numSequence);
-                try{writer.write("Float " + numSequence);
+                try{writer.write("float " + numSequence);
                     writer.newLine();
                 }
                 catch (IOException e){

@@ -1,5 +1,4 @@
-﻿
-/*William Perley N00636615
+﻿/*William Perley N00636615
  * SPECIFICATION:
 Your project is to use the grammar definition in the appendix
 of your text to guide the construction of a recursive descent parser.
@@ -103,9 +102,10 @@ namespace Parser
 		public static void FunProgram(FileBeingRead inputFile)
 		{
 			string currentToken = inputFile.CurrentToken();
-			List<string> movingTokens = new List<string>() { "int", "void", "float" };
+            string keywordToken = inputFile.KeyWord();
+			List<string> firstTokens = new List<string>() { "int", "void", "float" };
 
-			if (movingTokens.Contains(currentToken))
+			if (firstTokens.Contains(keywordToken))
 			{
 				DeclarationList(inputFile, currentToken);
 			}
@@ -119,10 +119,10 @@ namespace Parser
 		//Declaration-List -> Type-Specifier C Declaratioin-ListPrime
 		public static void DeclarationList(FileBeingRead inputFile, string currentToken)
 		{
-			//string currentToken = inputFile.CurrentToken();
 			List<string> firstTokens = new List<string>() { "int", "void", "float" };
+            string keywordToken = inputFile.KeyWord();
 
-			if (firstTokens.Contains(currentToken))
+            if (firstTokens.Contains(keywordToken))
 			{
 				TypeSpecifier(inputFile, currentToken);
 				currentToken = inputFile.CurrentToken();
@@ -139,14 +139,19 @@ namespace Parser
 		//Declaration-ListPrime -> Type-Specifier C Declaration-ListPrime || Empty
 		public static void DeclarationListPrime(FileBeingRead inputFile, string currentToken)
 		{
-			//string currentToken = inputFile.CurrentToken();
 			List<string> firstTokens = new List<string>() { "int", "void", "float" };
+            string keywordToken = inputFile.KeyWord();
 
-			if (firstTokens.Contains(currentToken))
+            if (firstTokens.Contains(keywordToken))
 			{
+                TypeSpecifier(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
 				RuleC(inputFile, currentToken);
-				return;
-			} else if (inputFile.EndofFile()) {
+                currentToken = inputFile.CurrentToken();
+                DeclarationListPrime(inputFile, currentToken);
+				
+			}
+            else if (inputFile.EndofFile()) {
 				// Have accept here?
 				return;
 			}
@@ -160,6 +165,7 @@ namespace Parser
 		public static void RuleC(FileBeingRead inputFile, string currentToken)
 		{
 			string token = "id";
+
 			if (currentToken == token)
 			{
 				inputFile.NextToken();
@@ -175,10 +181,10 @@ namespace Parser
 		// X -> (Params) Compound Statement || Y
 		public static void RuleX(FileBeingRead inputFile, string currentToken)
 		{
-			//string currentToken = inputFile.CurrentToken();
 			List<string> firstTokens = new List<string> { ";", "[" };
 			string secondToken = "(";
 			string thirdToken = ")";
+
 			if (firstTokens.Contains(currentToken))
 			{
 				RuleY(inputFile, currentToken);
@@ -190,23 +196,25 @@ namespace Parser
 				currentToken = inputFile.CurrentToken();
 				if (currentToken == thirdToken)
 				{
-					CompoundStatement(inputFile);
+                    inputFile.NextToken();
+                    currentToken = inputFile.CurrentToken();
+					CompoundStatement(inputFile, currentToken);
 				}
 				else
 				{
-                    Console.WriteLine("reject in rulex");
+                    Console.WriteLine("reject in rulex if statement");
 					Reject();
 				}
 			}
 			else
 			{
+                Console.WriteLine("reject rulex");
 				Reject();
 			}
 		}
 		//Y -> ; || [ NUM ] 
 		public static void RuleY(FileBeingRead inputFile, string currentToken)
 		{
-			//string currentToken = inputFile.CurrentToken();
 			string firstToken = ";";
 			string secondToken = "[";
 			string thirdToken = "]";
@@ -214,23 +222,27 @@ namespace Parser
 			if (currentToken == firstToken)
 			{
 				inputFile.NextToken();
-			} else if (currentToken == secondToken)
+
+            }
+            else if (currentToken == secondToken)
 			{
-				inputFile.NextToken();
-				//Need to figure out what to do with "NUM"
+                //For '['
+                inputFile.NextToken();
+                //For 'NUM'
 				inputFile.NextToken();
 				currentToken = inputFile.CurrentToken();
-
+                //'For ']'
 				if (currentToken == thirdToken)
 				{
 					inputFile.NextToken();
+
 				}
 				else
 				{
                     Console.WriteLine("reject ruley third token");
 					Reject();
 				}
-
+                //For last ';'
 				currentToken = inputFile.CurrentToken();
 				if (currentToken == firstToken)
 				{
@@ -251,10 +263,10 @@ namespace Parser
 		//Type-Specifier -> int || void || float
 		public static void TypeSpecifier(FileBeingRead inputFile, string currentToken)
 		{
-			//string currentToken = inputFile.CurrentToken();
 			List<string> firstToken = new List<string> { "int", "void", "float" };
+            string keywordToken = inputFile.KeyWord();
 
-			if (firstToken.Contains(currentToken))
+            if (firstToken.Contains(keywordToken))
 			{
 				inputFile.NextToken();
 			}
@@ -267,10 +279,10 @@ namespace Parser
 		//Params -> Param Param-listPrime
 		public static void Params(FileBeingRead inputFile, string currentToken)
 		{
-			//string currentToken = inputFile.CurrentToken();
 			List<string> firstToken = new List<string> { "int", "void", "float" };
+            string keywordToken = inputFile.KeyWord();
 
-			if (firstToken.Contains(currentToken))
+            if (firstToken.Contains(keywordToken))
 			{
 				Param(inputFile, currentToken);
 				currentToken = inputFile.CurrentToken();
@@ -285,7 +297,6 @@ namespace Parser
 		//Param-listPrime -> , param || Empty
 		public static void ParamListPrime(FileBeingRead inputFile, string currentToken)
 		{
-			//string currentToken = inputFile.CurrentToken();
 			string firstToken = ",";
 			string secondToken = ")";
 
@@ -307,10 +318,10 @@ namespace Parser
 		//Param -> type-specifier Z
 		public static void Param(FileBeingRead inputFile, string currentToken)
 		{
-			//string currentToken = inputFile.CurrentToken();
 			List<string> firstTokens = new List<string>() { "int", "void", "float" };
+            string keywordToken = inputFile.KeyWord();
 
-			if (firstTokens.Contains(currentToken))
+            if (firstTokens.Contains(keywordToken))
 			{
 				TypeSpecifier(inputFile, currentToken);
 				currentToken = inputFile.CurrentToken();
@@ -325,7 +336,6 @@ namespace Parser
 		//Z -> ID M
 		public static void RuleZ(FileBeingRead inputFile, string currentToken)
 		{
-			//string currentToken = inputFile.CurrentToken();
 			string firstToken = "id";
 
 			if (currentToken == firstToken)
@@ -343,13 +353,124 @@ namespace Parser
 		//M -> [ ] || Empty
 		public static void RuleM(FileBeingRead inputFile, string currentToken)
 		{
-			//string currentToken = inputFile.CurrentToken();
+            List<string> secondToken = new List<string>() { ",", ")" };
+            string firstToken = "[";
+            string thirdToken = "]";
+            if (firstToken == currentToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                if (currentToken == thirdToken)
+                {
+                    inputFile.NextToken();
+                }
+                else
+                {
+                    Console.WriteLine("reject rulem if statement");
+                    Reject();
+                }
+            } else if (secondToken.Contains(currentToken))
+            {
+                return;
+            }
+            else
+            {
+                Console.WriteLine("reject rulem");
+                Reject();
+            }
 		}
 		//Compound-Statement -> { local-declarationsPrime statement-listPrime }
-		public static void CompoundStatement(FileBeingRead inputFile)
+		public static void CompoundStatement(FileBeingRead inputFile, string currentToken)
 		{
+            string firstToken = "{";
+            string secondToken = "}";
 
+            if (firstToken == currentToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                LocalDeclarationsPrime(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                StatementListPrime(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                if(currentToken == secondToken)
+                {
+                    inputFile.NextToken();
+                }
+                else
+                {
+                    Console.WriteLine("reject rule compoundstatement if");
+                }
+            }
+            else
+            {
+                Console.WriteLine("reject rule compoundstatement");
+                Reject();
+            }
 		}
+        //Local-declarationsPrime -> type-specifier ID Y local-declarationPrime || Empty
+        public static void LocalDeclarationsPrime(FileBeingRead inputFile, string currentToken)
+        {
+            List<string> firstToken = new List<string>() { "int", "void", "float" };
+            List<string> secondToken = new List<string>() { "id", "(", ";", "{", "if", "return", "while", "int", "float" };
+            string keywordToken = inputFile.KeyWord();
+
+            if (firstToken.Contains(keywordToken))
+            {
+                TypeSpecifier(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                if(currentToken == "id")
+                {
+                    inputFile.NextToken();
+                }
+                else
+                {
+                    Console.WriteLine("reject rule localdeclarationsprime if");
+                    Reject();
+                }
+                currentToken = inputFile.CurrentToken();
+                RuleY(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                LocalDeclarationsPrime(inputFile, currentToken); 
+
+            }
+            else if (secondToken.Contains(currentToken))
+            {
+                return;
+            }
+            else
+            {
+                Console.WriteLine("reject rule localdeclarationsprime");
+                Reject();
+            }
+        }
+        //Statement-ListPrime -> statement statement-listPrime || empty
+        public static void StatementListPrime(FileBeingRead inputFile, string currentToken)
+        {
+            List<string> firstToken = new List<string>() { "id", "(", ";", "{", "int", "float", "if", "return", "while" };
+            string secondToken = "}";
+
+            if (firstToken.Contains(currentToken))
+            {
+                Statement(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                StatementListPrime(inputFile, currentToken);
+            }
+            else if(currentToken == secondToken)
+            {
+                return;
+            }
+            else
+            {
+                Console.WriteLine("reject rule statementlistprime");
+                Reject();
+            }
+        }
+        //Statement -> expression-statement || compound-statement || selection-statement || iteration-statement || return-statement
+        public static void Statement(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
 
 		//Reject Statement and Terminates program
 		public static void Reject()
@@ -359,7 +480,7 @@ namespace Parser
 		}
 
 	}
-
+    
 	class FileBeingRead
 	{
 		private int x = 0;
@@ -382,6 +503,17 @@ namespace Parser
 			return lines[x];
 		}
 
+        
+        public string KeyWord()
+        {
+            
+            string[] keyword = lines[x].Split(' ');
+            if(keyword[0] == "keyword")
+            {
+                return keyword[1];
+            }
+            return "error";
+        }
 
 		public bool EndofFile()
 		{
