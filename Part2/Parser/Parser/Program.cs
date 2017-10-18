@@ -678,67 +678,327 @@ namespace Parser
         //Return-Statement -> return U
         public static void ReturnStatement(FileBeingRead inputFile, string currentToken)
         {
+            string firstToken = "return";
 
+            if (currentToken == firstToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                RuleU(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject returnstatement");
+                Reject();
+            }
         }
         //U -> ExpressionStatement
         public static void RuleU(FileBeingRead inputFile, string currentToken)
         {
+            List<string> firstToken = new List<string>() { "id", "(", ";", "[", "int", "float" };
 
+            if (firstToken.Contains(currentToken))
+            {
+                ExpressionStatement(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject ruleu");
+                Reject();
+            }
         }
         //Expression -> ID F || ( Expression ) TermPrime B S || num TermPrime B S
         public static void Expression(FileBeingRead inputFile, string currentToken)
         {
+            string firstToken = "id";
+            string secondToken = "(";
+            string thirdToken = ")";
+            string fourthToken = "int";
+            string fifthToken = "float";
 
+            if (currentToken == firstToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                RuleF(inputFile, currentToken);
+            }
+            else if(currentToken == secondToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                Expression(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                if(currentToken == thirdToken)
+                {
+                    inputFile.NextToken();
+                    currentToken = inputFile.CurrentToken();
+                    TermPrime(inputFile, currentToken);
+                    currentToken = inputFile.CurrentToken();
+                    RuleB(inputFile, currentToken);
+                    currentToken = inputFile.CurrentToken();
+                    RuleS(inputFile, currentToken);
+                }
+                else
+                {
+                    Console.WriteLine("reject rule expression third token");
+                    Reject();
+                }
+            }
+            else if (currentToken == fourthToken || currentToken == fifthToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                TermPrime(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleB(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleS(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject rule expression");
+                Reject();
+            }
         }
         //F -> P G || ( Args ) TermPrime B || empty
         public static void RuleF(FileBeingRead inputFile, string currentToken)
         {
+            List<string> firstToken = new List<string>() { "[", "=", "*", "/", "<=", "<", ">", ">=", "==", "!=", "+", "-"};
+            List<string> secondToken = new List<string>() { ";", ",", ")", "]" };
 
+            if (firstToken.Contains(currentToken))
+            {
+                RuleP(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleG(inputFile, currentToken);
+            }
+            else if (secondToken.Contains(currentToken))
+            {
+                return;
+            }
+            else
+            {
+                Console.WriteLine("reject rulef");
+                Reject();
+            }
         }
         //G -> = Expression || TermPrime B S
         public static void RuleG(FileBeingRead inputFile, string currentToken)
         {
+            List<string> firstToken = new List<string>() { ";", ",", ")", "]" };
+            List<string> secontToken = new List<string>() { "*", "/", "<=", "<", ">", ">=", "==", "!=", "+", "-" };
+            string thirdToken = "=";
 
+            if (firstToken.Contains(currentToken))
+            {
+                return;
+            }
+            else if (secontToken.Contains(currentToken))
+            {
+                TermPrime(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleB(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleS(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject ruleg");
+                Reject();
+            }
         }
         //P -> empty || [ Expression ]
         public static void RuleP(FileBeingRead inputFile, string currentToken)
         {
+            List<string> firstToken = new List<string>() { ";", ",", ")", "=", "*", "/", "<=", "<", ">", ">=", "==", "!=", "+", "-" };
+            string secondToken = "[";
+            string thirdToken = "]";
 
+            if (firstToken.Contains(currentToken))
+            {
+                return;
+            }
+            else if (currentToken == secondToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                Expression(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                if (currentToken == thirdToken)
+                {
+                    inputFile.NextToken();
+                }
+                else
+                {
+                    Console.WriteLine("reject rulep third token");
+                    Reject();
+                }
+            }
+            else
+            {
+                Console.WriteLine("reject rulep");
+                Reject();
+            }
         }
         //S -> Relop Factor TermPrime B || empty
         public static void RuleS(FileBeingRead inputFile, string currentToken)
         {
+            List<string> firstToken = new List<string>() { ";", ",", ")", "]" };
+            List<string> secondToken = new List<string>() { "<=", "<", ">", ">=", "==", "!=", "+", "-" };
 
+            if (firstToken.Contains(currentToken))
+            {
+                return;
+            }
+            else if (secondToken.Contains(currentToken))
+            {
+                Relop(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                Factor(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                TermPrime(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleB(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject rules");
+                Reject();
+            }
         }
         //Relop -> <= || < || > || >= || == || !=
         public static void Relop(FileBeingRead inputFile, string currentToken)
         {
+            List<string> firstToken = new List<string>() { "<=", "<", ">", ">=", "==", "!=" };
 
+            if (firstToken.Contains(currentToken))
+            {
+                inputFile.NextToken();
+            }
+            else
+            {
+                Console.WriteLine("reject rule relop");
+                Reject();
+            }
         }
         //B -> Addop Factor TermPrime || empty
         public static void RuleB(FileBeingRead inputFile, string currentToken)
         {
+            List<string> firstToken = new List<string>() { "<=", "<", ">", ">=", "==", "!=", "]", ")", ",", ";" };
+            List<string> secondToken = new List<string>() { "+", "-" };
 
+            if (firstToken.Contains(currentToken))
+            {
+                return;
+            }
+            else if (secondToken.Contains(currentToken))
+            {
+                Addop(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                Factor(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                TermPrime(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleB(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject ruleb");
+                Reject();
+            }
         }
         //Addop -> + || -
         public static void Addop(FileBeingRead inputFile, string currentToken)
         {
+            List<string> firstToken = new List<string>() { "+", "-" };
 
+            if (firstToken.Contains(currentToken))
+            {
+                inputFile.NextToken();
+            }
+            else
+            {
+                Console.WriteLine("reject rule addop");
+                Reject();
+            }
         }
         //TermPrime -> Mulop Factor TermPrime B || empty
         public static void TermPrime(FileBeingRead inputFile, string currentToken)
         {
+            List<string> firstToken = new List<string>() { ";", ",", ")", "=", "<=", "<", ">", ">=", "==", "!=", "+", "-" };
+            List<string> secondToken = new List<string>() { "*", "/" };
 
+            if (firstToken.Contains(currentToken))
+            {
+                return;
+            }
+            else if (secondToken.Contains(currentToken))
+            {
+                Mulop(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                Factor(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                TermPrime(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject rule termprime");
+                Reject();
+            }
         }
         //Mulop -> * || /
         public static void Mulop(FileBeingRead inputFile, string currentToken)
         {
-
+            List<string> firstToken = new List<string>() { "*", "/" };
+            if (firstToken.Contains(currentToken))
+            {
+                inputFile.NextToken();
+            }
+            else
+            {
+                Console.WriteLine("reject rule mulop");
+                Reject();
+            }
         }
         //Factor -> ( Expression ) || id E || num
         public static void Factor(FileBeingRead inputFile, string currentToken)
         {
+            List<string> firstToken = new List<string>() { "float", "int" };
+            string secondToken = "(";
+            string thirdToken = "id";
+            string fourthToken = ")";
 
+            if (firstToken.Contains(currentToken))
+            {
+                inputFile.NextToken();
+            }
+            else if (secondToken == currentToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                Expression(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                if (currentToken == fourthToken)
+                {
+                    inputFile.NextToken();
+                }
+                else
+                {
+                    Console.WriteLine("reject rule factor fourthtoken");
+                    Reject();
+                }
+            }
+            else if (thirdToken == currentToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                RuleE(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject rule factor");
+                Reject();
+            }
         }
         //E -> P || ( Args )
         public static void RuleE(FileBeingRead inputFile, string currentToken)
