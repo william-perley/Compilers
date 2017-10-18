@@ -82,277 +82,288 @@ using System.Collections.Generic;
 
 namespace Parser
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
-			BeginParsing();
-			Console.ReadKey();
-		}
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            BeginParsing();
+            Console.ReadKey();
+        }
 
-		public static void BeginParsing()
-		{
-			//Creates an object that is the file of tokens that will be passed through the project.
-			FileBeingRead inputFile = new FileBeingRead();
-			FunProgram(inputFile);
-			Console.WriteLine("ACCEPT");
-			Console.ReadKey();
-		}
-		//Program -> Declaration-List
-		public static void FunProgram(FileBeingRead inputFile)
-		{
-			string currentToken = inputFile.CurrentToken();
+        public static void BeginParsing()
+        {
+            //Creates an object that is the file of tokens that will be passed through the project.
+            FileBeingRead inputFile = new FileBeingRead();
+            FunProgram(inputFile);
+            Console.WriteLine("ACCEPT");
+            Console.ReadKey();
+        }
+        //Program -> Declaration-List
+        public static void FunProgram(FileBeingRead inputFile)
+        {
+            string currentToken = inputFile.CurrentToken();
             string keywordToken = inputFile.KeyWord();
-			List<string> firstTokens = new List<string>() { "int", "void", "float" };
+            List<string> firstTokens = new List<string>() { "int", "void", "float" };
 
-			if (firstTokens.Contains(keywordToken))
-			{
-				DeclarationList(inputFile, currentToken);
-			}
-			else
-			{
+            if (firstTokens.Contains(keywordToken))
+            {
+                DeclarationList(inputFile, currentToken);
+            }
+            else
+            {
 
-				Console.WriteLine("reject in funprogram");
-				Reject();
-			}
-		}
-		//Declaration-List -> Type-Specifier C Declaratioin-ListPrime
-		public static void DeclarationList(FileBeingRead inputFile, string currentToken)
-		{
-			List<string> firstTokens = new List<string>() { "int", "void", "float" };
+                Console.WriteLine("reject in funprogram");
+                Reject();
+            }
+        }
+        //Declaration-List -> Type-Specifier C Declaratioin-ListPrime
+        public static void DeclarationList(FileBeingRead inputFile, string currentToken)
+        {
+            List<string> firstTokens = new List<string>() { "int", "void", "float" };
             string keywordToken = inputFile.KeyWord();
 
             if (firstTokens.Contains(keywordToken))
-			{
-				TypeSpecifier(inputFile, currentToken);
-				currentToken = inputFile.CurrentToken();
-				RuleC(inputFile, currentToken);
-				currentToken = inputFile.CurrentToken();
-				DeclarationListPrime(inputFile, currentToken);
-			}
-			else
-			{
-				Console.WriteLine("reject in declarationlist");
-				Reject();
-			}
-		}
-		//Declaration-ListPrime -> Type-Specifier C Declaration-ListPrime || Empty
-		public static void DeclarationListPrime(FileBeingRead inputFile, string currentToken)
-		{
-			List<string> firstTokens = new List<string>() { "int", "void", "float" };
-            string keywordToken = inputFile.KeyWord();
-
-            if (firstTokens.Contains(keywordToken))
-			{
+            {
                 TypeSpecifier(inputFile, currentToken);
                 currentToken = inputFile.CurrentToken();
-				RuleC(inputFile, currentToken);
+                RuleC(inputFile, currentToken);
                 currentToken = inputFile.CurrentToken();
                 DeclarationListPrime(inputFile, currentToken);
-				
-			}
+            }
+            else
+            {
+                Console.WriteLine("reject in declarationlist");
+                Reject();
+            }
+        }
+        //Declaration-ListPrime -> Type-Specifier C Declaration-ListPrime || Empty
+        public static void DeclarationListPrime(FileBeingRead inputFile, string currentToken)
+        {
+            List<string> firstTokens = new List<string>() { "int", "void", "float" };
+            string keywordToken = inputFile.KeyWord();
+
+            if (firstTokens.Contains(keywordToken))
+            {
+                TypeSpecifier(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleC(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                DeclarationListPrime(inputFile, currentToken);
+
+            }
             else if (inputFile.EndofFile()) {
-				// Have accept here?
-				return;
-			}
-			else
-			{
-				Console.WriteLine("reject in declarationlistprime");
-				Reject();
-			}
-		}
-		//C -> ID X
-		public static void RuleC(FileBeingRead inputFile, string currentToken)
-		{
-			string token = "id";
+                // Have accept here?
+                return;
+            }
+            else
+            {
+                Console.WriteLine("reject in declarationlistprime");
+                Reject();
+            }
+        }
+        //C -> ID X
+        public static void RuleC(FileBeingRead inputFile, string currentToken)
+        {
+            string token = "id";
 
-			if (currentToken == token)
-			{
-				inputFile.NextToken();
-				currentToken = inputFile.CurrentToken();
-				RuleX(inputFile, currentToken);
-			}
-			else
-			{
+            if (currentToken == token)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                RuleX(inputFile, currentToken);
+            }
+            else
+            {
                 Console.WriteLine("reject in rulec");
-				Reject();
-			}
-		}
-		// X -> (Params) Compound Statement || Y
-		public static void RuleX(FileBeingRead inputFile, string currentToken)
-		{
-			List<string> firstTokens = new List<string> { ";", "[" };
-			string secondToken = "(";
-			string thirdToken = ")";
+                Reject();
+            }
+        }
+        // X -> (Params) Compound Statement || Y
+        public static void RuleX(FileBeingRead inputFile, string currentToken)
+        {
+            List<string> firstTokens = new List<string> { ";", "[" };
+            string secondToken = "(";
+            string thirdToken = ")";
 
-			if (firstTokens.Contains(currentToken))
-			{
-				RuleY(inputFile, currentToken);
-			} else if (currentToken == secondToken)
-			{
-				inputFile.NextToken();
-				currentToken = inputFile.CurrentToken();
-				Params(inputFile, currentToken);
-				currentToken = inputFile.CurrentToken();
-				if (currentToken == thirdToken)
-				{
+            if (firstTokens.Contains(currentToken))
+            {
+                RuleY(inputFile, currentToken);
+            } else if (currentToken == secondToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                Params(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                if (currentToken == thirdToken)
+                {
                     inputFile.NextToken();
                     currentToken = inputFile.CurrentToken();
-					CompoundStatement(inputFile, currentToken);
-				}
-				else
-				{
+                    CompoundStatement(inputFile, currentToken);
+                }
+                else
+                {
                     Console.WriteLine("reject in rulex if statement");
-					Reject();
-				}
-			}
-			else
-			{
+                    Reject();
+                }
+            }
+            else
+            {
                 Console.WriteLine("reject rulex");
-				Reject();
-			}
-		}
-		//Y -> ; || [ NUM ] 
-		public static void RuleY(FileBeingRead inputFile, string currentToken)
-		{
-			string firstToken = ";";
-			string secondToken = "[";
-			string thirdToken = "]";
+                Reject();
+            }
+        }
+        //Y -> ; || [ NUM ] 
+        public static void RuleY(FileBeingRead inputFile, string currentToken)
+        {
+            string firstToken = ";";
+            string secondToken = "[";
+            string thirdToken = "]";
+            List<string> fourthToken = new List<string>() { "int", "float" };
 
-			if (currentToken == firstToken)
-			{
-				inputFile.NextToken();
+            if (currentToken == firstToken)
+            {
+                inputFile.NextToken();
 
             }
             else if (currentToken == secondToken)
-			{
+            {
                 //For '['
                 inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
                 //For 'NUM'
-				inputFile.NextToken();
-				currentToken = inputFile.CurrentToken();
+                if (fourthToken.Contains(currentToken))
+                {
+                    inputFile.NextToken();
+                }
+                else
+                {
+                    Console.WriteLine("reject ruley fourth token");
+                    Reject();
+                }
+
+                currentToken = inputFile.CurrentToken();
                 //'For ']'
-				if (currentToken == thirdToken)
-				{
-					inputFile.NextToken();
+                if (currentToken == thirdToken)
+                {
+                    inputFile.NextToken();
 
-				}
-				else
-				{
+                }
+                else
+                {
                     Console.WriteLine("reject ruley third token");
-					Reject();
-				}
+                    Reject();
+                }
                 //For last ';'
-				currentToken = inputFile.CurrentToken();
-				if (currentToken == firstToken)
-				{
-					inputFile.NextToken();
-				}
-				else
-				{
+                currentToken = inputFile.CurrentToken();
+                if (currentToken == firstToken)
+                {
+                    inputFile.NextToken();
+                }
+                else
+                {
                     Console.WriteLine("reject ruley first token");
-					Reject();
-				}
-			}
-			else
-			{
+                    Reject();
+                }
+            }
+            else
+            {
                 Console.WriteLine("reject in ruley");
-				Reject();
-			}
-		}
-		//Type-Specifier -> int || void || float
-		public static void TypeSpecifier(FileBeingRead inputFile, string currentToken)
-		{
-			List<string> firstToken = new List<string> { "int", "void", "float" };
+                Reject();
+            }
+        }
+        //Type-Specifier -> int || void || float
+        public static void TypeSpecifier(FileBeingRead inputFile, string currentToken)
+        {
+            List<string> firstToken = new List<string> { "int", "void", "float" };
             string keywordToken = inputFile.KeyWord();
 
             if (firstToken.Contains(keywordToken))
-			{
-				inputFile.NextToken();
-			}
-			else
-			{
+            {
+                inputFile.NextToken();
+            }
+            else
+            {
                 Console.WriteLine("reject rule typespecifier");
-				Reject();
-			}
-		}
-		//Params -> Param Param-listPrime
-		public static void Params(FileBeingRead inputFile, string currentToken)
-		{
-			List<string> firstToken = new List<string> { "int", "void", "float" };
+                Reject();
+            }
+        }
+        //Params -> Param Param-listPrime
+        public static void Params(FileBeingRead inputFile, string currentToken)
+        {
+            List<string> firstToken = new List<string> { "int", "void", "float" };
             string keywordToken = inputFile.KeyWord();
 
             if (firstToken.Contains(keywordToken))
-			{
-				Param(inputFile, currentToken);
-				currentToken = inputFile.CurrentToken();
-				ParamListPrime(inputFile, currentToken);
-			}
-			else
-			{
+            {
+                Param(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                ParamListPrime(inputFile, currentToken);
+            }
+            else
+            {
                 Console.WriteLine("reject rule params");
-				Reject();
-			}
-		}
-		//Param-listPrime -> , param || Empty
-		public static void ParamListPrime(FileBeingRead inputFile, string currentToken)
-		{
-			string firstToken = ",";
-			string secondToken = ")";
+                Reject();
+            }
+        }
+        //Param-listPrime -> , param || Empty
+        public static void ParamListPrime(FileBeingRead inputFile, string currentToken)
+        {
+            string firstToken = ",";
+            string secondToken = ")";
 
-			if (currentToken == firstToken)
-			{
-				inputFile.NextToken();
-				currentToken = inputFile.CurrentToken();
-				Param(inputFile, currentToken);
-			} else if (currentToken == secondToken)
-			{
-				return;
-			}
-			else
-			{
+            if (currentToken == firstToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                Param(inputFile, currentToken);
+            } else if (currentToken == secondToken)
+            {
+                return;
+            }
+            else
+            {
                 Console.WriteLine("reject rule paramlistprime");
-				Reject();
-			}
-		}
-		//Param -> type-specifier Z
-		public static void Param(FileBeingRead inputFile, string currentToken)
-		{
-			List<string> firstTokens = new List<string>() { "int", "void", "float" };
+                Reject();
+            }
+        }
+        //Param -> type-specifier Z
+        public static void Param(FileBeingRead inputFile, string currentToken)
+        {
+            List<string> firstTokens = new List<string>() { "int", "void", "float" };
             string keywordToken = inputFile.KeyWord();
 
             if (firstTokens.Contains(keywordToken))
-			{
-				TypeSpecifier(inputFile, currentToken);
-				currentToken = inputFile.CurrentToken();
-				RuleZ(inputFile, currentToken);
-			}
-			else
-			{
+            {
+                TypeSpecifier(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleZ(inputFile, currentToken);
+            }
+            else
+            {
                 Console.WriteLine("reject rule param");
-				Reject();
-			}
-		}
-		//Z -> ID M
-		public static void RuleZ(FileBeingRead inputFile, string currentToken)
-		{
-			string firstToken = "id";
+                Reject();
+            }
+        }
+        //Z -> ID M
+        public static void RuleZ(FileBeingRead inputFile, string currentToken)
+        {
+            string firstToken = "id";
 
-			if (currentToken == firstToken)
-			{
-				inputFile.NextToken();
-				currentToken = inputFile.CurrentToken();
-				RuleM(inputFile, currentToken);
-			}
-			else
-			{
+            if (currentToken == firstToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                RuleM(inputFile, currentToken);
+            }
+            else
+            {
                 Console.WriteLine("reject rulez");
-				Reject();
-			}
-		}
-		//M -> [ ] || Empty
-		public static void RuleM(FileBeingRead inputFile, string currentToken)
-		{
+                Reject();
+            }
+        }
+        //M -> [ ] || Empty
+        public static void RuleM(FileBeingRead inputFile, string currentToken)
+        {
             List<string> secondToken = new List<string>() { ",", ")" };
             string firstToken = "[";
             string thirdToken = "]";
@@ -378,10 +389,10 @@ namespace Parser
                 Console.WriteLine("reject rulem");
                 Reject();
             }
-		}
-		//Compound-Statement -> { local-declarationsPrime statement-listPrime }
-		public static void CompoundStatement(FileBeingRead inputFile, string currentToken)
-		{
+        }
+        //Compound-Statement -> { local-declarationsPrime statement-listPrime }
+        public static void CompoundStatement(FileBeingRead inputFile, string currentToken)
+        {
             string firstToken = "{";
             string secondToken = "}";
 
@@ -393,7 +404,7 @@ namespace Parser
                 currentToken = inputFile.CurrentToken();
                 StatementListPrime(inputFile, currentToken);
                 currentToken = inputFile.CurrentToken();
-                if(currentToken == secondToken)
+                if (currentToken == secondToken)
                 {
                     inputFile.NextToken();
                 }
@@ -407,19 +418,20 @@ namespace Parser
                 Console.WriteLine("reject rule compoundstatement");
                 Reject();
             }
-		}
+        }
         //Local-declarationsPrime -> type-specifier ID Y local-declarationPrime || Empty
         public static void LocalDeclarationsPrime(FileBeingRead inputFile, string currentToken)
         {
             List<string> firstToken = new List<string>() { "int", "void", "float" };
-            List<string> secondToken = new List<string>() { "id", "(", ";", "{", "if", "return", "while", "int", "float" };
+            List<string> secondToken = new List<string>() { "id", "(", ";", "{", "int", "float" };
+            List<string> thirdToken = new List<string>() { "if", "while", "return" };
             string keywordToken = inputFile.KeyWord();
 
             if (firstToken.Contains(keywordToken))
             {
                 TypeSpecifier(inputFile, currentToken);
                 currentToken = inputFile.CurrentToken();
-                if(currentToken == "id")
+                if (currentToken == "id")
                 {
                     inputFile.NextToken();
                 }
@@ -431,10 +443,10 @@ namespace Parser
                 currentToken = inputFile.CurrentToken();
                 RuleY(inputFile, currentToken);
                 currentToken = inputFile.CurrentToken();
-                LocalDeclarationsPrime(inputFile, currentToken); 
+                LocalDeclarationsPrime(inputFile, currentToken);
 
             }
-            else if (secondToken.Contains(currentToken))
+            else if (secondToken.Contains(currentToken) || thirdToken.Contains(keywordToken))
             {
                 return;
             }
@@ -448,7 +460,9 @@ namespace Parser
         public static void StatementListPrime(FileBeingRead inputFile, string currentToken)
         {
             List<string> firstToken = new List<string>() { "id", "(", ";", "{", "int", "float", "if", "return", "while" };
-            string secondToken = "}";
+            List<string> secondToken = new List<string>() { "if", "while", "return" };
+            string thirdToken = "}";
+            string keywordToken = inputFile.KeyWord();
 
             if (firstToken.Contains(currentToken))
             {
@@ -456,7 +470,7 @@ namespace Parser
                 currentToken = inputFile.CurrentToken();
                 StatementListPrime(inputFile, currentToken);
             }
-            else if(currentToken == secondToken)
+            else if (currentToken == thirdToken || secondToken.Contains(keywordToken))
             {
                 return;
             }
@@ -474,24 +488,25 @@ namespace Parser
             string thirdToken = "if";
             string fourthToken = "return";
             string fifthToken = "while";
+            string keywordToken = inputFile.KeyWord();
 
             if (firstToken.Contains(currentToken))
             {
                 ExpressionStatement(inputFile, currentToken);
             }
-            else if(currentToken == secondToken)
+            else if (currentToken == secondToken)
             {
                 CompoundStatement(inputFile, currentToken);
             }
-            else if (currentToken == thirdToken)
+            else if (keywordToken == thirdToken)
             {
                 SelectionStatement(inputFile, currentToken);
             }
-            else if (currentToken == fourthToken)
+            else if (keywordToken == fourthToken)
             {
                 ReturnStatement(inputFile, currentToken);
             }
-            else if (currentToken == fifthToken)
+            else if (keywordToken == fifthToken)
             {
                 IterationStatement(inputFile, currentToken);
             }
@@ -565,7 +580,7 @@ namespace Parser
                 Reject();
             }
         }
-        //D -> expression R
+        //D -> Expression R
         public static void RuleD(FileBeingRead inputFile, string currentToken)
         {
             List<string> firstToken = new List<string>() { "id", "(", "int", "float" };
@@ -581,6 +596,164 @@ namespace Parser
                 Console.WriteLine("reject ruler");
                 Reject();
             }
+        }
+        //R -> ) T
+        public static void RuleR(FileBeingRead inputFile, string currentToken)
+        {
+            string firstToken = ")";
+            
+            if (currentToken == firstToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                RuleT(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject ruler");
+                Reject();
+            }
+        }
+        //T -> Statement || else Statement
+        public static void RuleT(FileBeingRead inputFile, string currentToken)
+        {
+            List<string> firstToken = new List<string>() { "id", "(", ";", "{", "int", "float", "if", "return", "while" };
+            string secondToken = "else";
+            string keywordToken = inputFile.KeyWord();
+
+            if (firstToken.Contains(currentToken) || firstToken.Contains(keywordToken))
+            {
+                Statement(inputFile, currentToken);
+            }
+            else if (currentToken == secondToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                Statement(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject ruleT");
+                Reject();
+            }
+        }
+        //Iteration-Statement -> while (Expression) Statement
+        public static void IterationStatement(FileBeingRead inputFile, string currentToken)
+        {
+            string firstToken = "while";
+            string secondToken = "(";
+            string thirdToken = ")";
+            string keywordToken = inputFile.KeyWord();
+
+            if (firstToken == keywordToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+
+            }
+            else
+            {
+                Console.WriteLine("reject rule iterationstatement first token");
+                Reject();
+            }
+            if (secondToken == currentToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                Expression(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+            }
+            else
+            {
+                Console.WriteLine("reject rule iterationstatement second token");
+                Reject();
+            }
+            if(currentToken == thirdToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                Statement(inputFile, currentToken);
+            }
+        }
+        //Return-Statement -> return U
+        public static void ReturnStatement(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //U -> ExpressionStatement
+        public static void RuleU(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //Expression -> ID F || ( Expression ) TermPrime B S || num TermPrime B S
+        public static void Expression(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //F -> P G || ( Args ) TermPrime B || empty
+        public static void RuleF(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //G -> = Expression || TermPrime B S
+        public static void RuleG(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //P -> empty || [ Expression ]
+        public static void RuleP(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //S -> Relop Factor TermPrime B || empty
+        public static void RuleS(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //Relop -> <= || < || > || >= || == || !=
+        public static void Relop(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //B -> Addop Factor TermPrime || empty
+        public static void RuleB(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //Addop -> + || -
+        public static void Addop(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //TermPrime -> Mulop Factor TermPrime B || empty
+        public static void TermPrime(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //Mulop -> * || /
+        public static void Mulop(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //Factor -> ( Expression ) || id E || num
+        public static void Factor(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //E -> P || ( Args )
+        public static void RuleE(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //Args -> Expression ArgsListPrime || empty
+        public static void Args(FileBeingRead inputFile, string currentToken)
+        {
+
+        }
+        //ArgsListPrime -> , Expression ArgsListPrime || empty
+        public static void ArgsListPrime(FileBeingRead inputFile, string currentToken)
+        {
+
         }
 		//Reject Statement and Terminates program
 		public static void Reject()
