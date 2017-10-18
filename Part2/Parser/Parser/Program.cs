@@ -469,9 +469,119 @@ namespace Parser
         //Statement -> expression-statement || compound-statement || selection-statement || iteration-statement || return-statement
         public static void Statement(FileBeingRead inputFile, string currentToken)
         {
+            List<string> firstToken = new List<string>() { "id", "(", ";", "int", "float" };
+            string secondToken = "{";
+            string thirdToken = "if";
+            string fourthToken = "return";
+            string fifthToken = "while";
 
+            if (firstToken.Contains(currentToken))
+            {
+                ExpressionStatement(inputFile, currentToken);
+            }
+            else if(currentToken == secondToken)
+            {
+                CompoundStatement(inputFile, currentToken);
+            }
+            else if (currentToken == thirdToken)
+            {
+                SelectionStatement(inputFile, currentToken);
+            }
+            else if (currentToken == fourthToken)
+            {
+                ReturnStatement(inputFile, currentToken);
+            }
+            else if (currentToken == fifthToken)
+            {
+                IterationStatement(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject rule statement");
+                Reject();
+            }
         }
+        //Expression-Statement -> expression ; || ;
+        public static void ExpressionStatement(FileBeingRead inputFile, string currentToken)
+        {
+            List<string> firstToken = new List<string>() { "id", "(", "int", "float" };
+            string secondToken = ";";
 
+            if (firstToken.Contains(currentToken))
+            {
+                Expression(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                if (currentToken == secondToken)
+                {
+                    inputFile.NextToken();
+                }
+                else
+                {
+                    Console.WriteLine("reject rule expressionstatement if");
+                }
+            }
+            else if (currentToken == secondToken)
+            {
+                inputFile.NextToken();
+            }
+            else
+            {
+                Console.WriteLine("reject rule expressionstatement");
+                Reject();
+            }
+        }
+        //Selection-Statement -> if A
+        public static void SelectionStatement(FileBeingRead inputFile, string currentToken)
+        {
+            string firstToken = "if";
+            string keywordToken = inputFile.KeyWord();
+
+            if (keywordToken == firstToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                RuleA(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject rule selectionstatement");
+                Reject();
+            }
+        }
+        //A -> ( D
+        public static void RuleA(FileBeingRead inputFile, string currentToken)
+        {
+            string firstToken = "(";
+
+            if (currentToken == firstToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                RuleD(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject rulea");
+                Reject();
+            }
+        }
+        //D -> expression R
+        public static void RuleD(FileBeingRead inputFile, string currentToken)
+        {
+            List<string> firstToken = new List<string>() { "id", "(", "int", "float" };
+
+            if (firstToken.Contains(currentToken))
+            {
+                Expression(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleR(inputFile, currentToken);
+            }
+            else
+            {
+                Console.WriteLine("reject ruler");
+                Reject();
+            }
+        }
 		//Reject Statement and Terminates program
 		public static void Reject()
 		{
