@@ -87,7 +87,7 @@ namespace Parser
         static void Main(string[] args)
         {
             BeginParsing();
-            Console.ReadKey();
+            
         }
 
         public static void BeginParsing()
@@ -96,7 +96,7 @@ namespace Parser
             FileBeingRead inputFile = new FileBeingRead();
             FunProgram(inputFile);
             Console.WriteLine("ACCEPT");
-            Console.ReadKey();
+            
             
         }
         //Program -> Declaration-List
@@ -113,7 +113,7 @@ namespace Parser
             else
             {
 
-                Console.WriteLine("reject in funprogram and current token = " + currentToken);
+                //Console.WriteLine("reject in funprogram and current token = " + currentToken);
                 Reject();
             }
         }
@@ -133,7 +133,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject in declarationlist and current token = " + currentToken);
+                //Console.WriteLine("reject in declarationlist and current token = " + currentToken);
                 Reject();
             }
         }
@@ -158,7 +158,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject in declarationlistprime and current token = " + currentToken);
+                //Console.WriteLine("reject in declarationlistprime and current token = " + currentToken);
                 Reject();
             }
         }
@@ -175,7 +175,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject in rulec and current token = " + currentToken);
+                //Console.WriteLine("reject in rulec and current token = " + currentToken);
                 Reject();
             }
         }
@@ -203,13 +203,13 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject in rulex if statement and current token = " + currentToken);
+                    //Console.WriteLine("reject in rulex if statement and current token = " + currentToken);
                     Reject();
                 }
             }
             else
             {
-                Console.WriteLine("reject rulex and current token = " + currentToken);
+                //Console.WriteLine("reject rulex and current token = " + currentToken);
                 Reject();
             }
         }
@@ -238,7 +238,7 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject ruley fourth token and current token = " + currentToken);
+                    //Console.WriteLine("reject ruley fourth token and current token = " + currentToken);
                     Reject();
                 }
 
@@ -251,7 +251,7 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject ruley third token and current token = " + currentToken);
+                    //Console.WriteLine("reject ruley third token and current token = " + currentToken);
                     Reject();
                 }
                 //For last ';'
@@ -262,13 +262,13 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject ruley first token and current token = " + currentToken);
+                   // Console.WriteLine("reject ruley first token and current token = " + currentToken);
                     Reject();
                 }
             }
             else
             {
-                Console.WriteLine("reject in ruley and current token = " + currentToken);
+                //Console.WriteLine("reject in ruley and current token = " + currentToken);
                 Reject();
             }
         }
@@ -284,7 +284,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule typespecifier and current token = " + currentToken);
+                //Console.WriteLine("reject rule typespecifier and current token = " + currentToken);
                 Reject();
             }
         }
@@ -302,7 +302,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule params and current token = " + currentToken);
+                //Console.WriteLine("reject rule params and current token = " + currentToken);
                 Reject();
             }
         }
@@ -323,7 +323,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule paramlistprime and current token = " + currentToken);
+                //Console.WriteLine("reject rule paramlistprime and current token = " + currentToken);
                 Reject();
             }
         }
@@ -341,7 +341,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule param and current token = " + currentToken);
+               // Console.WriteLine("reject rule param and current token = " + currentToken);
                 Reject();
             }
         }
@@ -364,7 +364,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rulez and current token = " + currentToken);
+                //Console.WriteLine("reject rulez and current token = " + currentToken);
                 Reject();
             }
         }
@@ -384,7 +384,7 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject rulem if statement and current token = " + currentToken);
+                    //Console.WriteLine("reject rulem if statement and current token = " + currentToken);
                     Reject();
                 }
             } else if (secondToken.Contains(currentToken))
@@ -393,7 +393,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rulem and current token = " + currentToken);
+                //Console.WriteLine("reject rulem and current token = " + currentToken);
                 Reject();
             }
         }
@@ -417,13 +417,13 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject rule compoundstatement if and current token = " + currentToken);
+                   // Console.WriteLine("reject rule compoundstatement if and current token = " + currentToken);
                     Reject();
                 }
             }
             else
             {
-                Console.WriteLine("reject rule compoundstatement and current token = " + currentToken);
+                //Console.WriteLine("reject rule compoundstatement and current token = " + currentToken);
                 Reject();
             }
         }
@@ -438,7 +438,7 @@ namespace Parser
 
             if (firstToken.Contains(keywordToken))
             {
-                TypeSpecifier(inputFile, currentToken);
+                TypeSpecifier(inputFile, currentToken); 
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == "id")
                 {
@@ -446,7 +446,7 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject rule localdeclarationsprime if and current token = " + currentToken);
+                    //Console.WriteLine("reject rule localdeclarationsprime if and current token = " + currentToken);
                     Reject();
                 }
                 currentToken = inputFile.CurrentToken();
@@ -469,7 +469,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule localdeclarationsprime and current token = " + currentToken);
+                //Console.WriteLine("reject rule localdeclarationsprime and current token = " + currentToken);
                 Reject();
             }
         }
@@ -501,7 +501,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule statementlistprime and current token = " + currentToken);
+                //Console.WriteLine("reject rule statementlistprime and current token = " + currentToken);
                 Reject();
             }
         }
@@ -537,7 +537,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule statement and current token = " + currentToken);
+                //Console.WriteLine("reject rule statement and current token = " + currentToken);
                 Reject();
             }
         }
@@ -557,7 +557,8 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject rule expressionstatement if and current token = " + currentToken);
+                    //Console.WriteLine("reject rule expressionstatement if and current token = " + currentToken);
+                    Reject();
                 }
             }
             else if (currentToken == secondToken)
@@ -566,7 +567,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule expressionstatement and current token = " + currentToken);
+                //Console.WriteLine("reject rule expressionstatement and current token = " + currentToken);
                 Reject();
             }
         }
@@ -584,7 +585,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule selectionstatement and current token = " + currentToken);
+                //Console.WriteLine("reject rule selectionstatement and current token = " + currentToken);
                 Reject();
             }
         }
@@ -601,7 +602,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rulea and current token = " + currentToken);
+                //Console.WriteLine("reject rulea and current token = " + currentToken);
                 Reject();
             }
         }
@@ -618,7 +619,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject ruler and current token = " + currentToken);
+                //Console.WriteLine("reject ruler and current token = " + currentToken);
                 Reject();
             }
         }
@@ -635,7 +636,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject ruler and current token = " + currentToken);
+                //Console.WriteLine("reject ruler and current token = " + currentToken);
                 Reject();
             }
         }
@@ -658,7 +659,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject ruleT and current token = " + currentToken);
+                //Console.WriteLine("reject ruleT and current token = " + currentToken);
                 Reject();
             }
         }
@@ -678,7 +679,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule iterationstatement first token and current token = " + currentToken);
+                //Console.WriteLine("reject rule iterationstatement first token and current token = " + currentToken);
                 Reject();
             }
             if (secondToken == currentToken)
@@ -690,7 +691,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule iterationstatement second token and current token = " + currentToken);
+                //Console.WriteLine("reject rule iterationstatement second token and current token = " + currentToken);
                 Reject();
             }
             if(currentToken == thirdToken)
@@ -713,7 +714,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject returnstatement and current token = " + currentToken);
+                //Console.WriteLine("reject returnstatement and current token = " + currentToken);
                 Reject();
             }
         }
@@ -728,7 +729,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject ruleu and current token = " + currentToken);
+                //Console.WriteLine("reject ruleu and current token = " + currentToken);
                 Reject();
             }
         }
@@ -765,7 +766,7 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject rule expression third token and current token = " + currentToken);
+                   // Console.WriteLine("reject rule expression third token and current token = " + currentToken);
                     Reject();
                 }
             }
@@ -781,7 +782,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule expression and current token = " + currentToken);
+                //Console.WriteLine("reject rule expression and current token = " + currentToken);
                 Reject();
             }
         }
@@ -815,7 +816,7 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject rulef fourth token " +currentToken);
+                   // Console.WriteLine("reject rulef fourth token " +currentToken);
                     Reject();
                 }
                 currentToken = inputFile.CurrentToken();
@@ -827,7 +828,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rulef");
+               // Console.WriteLine("reject rulef");
                 Reject();
             }
         }
@@ -858,7 +859,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject ruleg");
+                //Console.WriteLine("reject ruleg");
                 Reject();
             }
         }
@@ -885,13 +886,13 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject rulep third token");
+                    //Console.WriteLine("reject rulep third token " + currentToken);
                     Reject();
                 }
             }
             else
             {
-                Console.WriteLine("reject rulep");
+                //Console.WriteLine("reject rulep");
                 Reject();
             }
         }
@@ -917,7 +918,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rules");
+                //Console.WriteLine("reject rules");
                 Reject();
             }
         }
@@ -932,7 +933,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule relop");
+                //Console.WriteLine("reject rule relop");
                 Reject();
             }
         }
@@ -958,7 +959,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject ruleb");
+                //Console.WriteLine("reject ruleb");
                 Reject();
             }
         }
@@ -973,7 +974,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule addop");
+                //Console.WriteLine("reject rule addop");
                 Reject();
             }
         }
@@ -997,7 +998,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule termprime");
+                //Console.WriteLine("reject rule termprime");
                 Reject();
             }
         }
@@ -1011,7 +1012,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule mulop");
+                //Console.WriteLine("reject rule mulop");
                 Reject();
             }
         }
@@ -1039,7 +1040,7 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject rule factor fourthtoken");
+                    //Console.WriteLine("reject rule factor fourthtoken");
                     Reject();
                 }
             }
@@ -1051,7 +1052,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule factor");
+                //Console.WriteLine("reject rule factor");
                 Reject();
             }
         }
@@ -1071,15 +1072,16 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Expression(inputFile, currentToken);
+                Args(inputFile, currentToken);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == thirdToken)
                 {
+                    inputFile.NextToken();
                     return;
                 }
                 else
                 {
-                    Console.WriteLine("reject rulee third token");
+                    //Console.WriteLine("reject rulee third token");
                     Reject();
                 }
             }
@@ -1089,7 +1091,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rulee");
+                //Console.WriteLine("reject rulee");
                 Reject();
             }
         }
@@ -1118,7 +1120,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule args");
+                //Console.WriteLine("reject rule args");
                 Reject();
             }
         }
@@ -1142,7 +1144,7 @@ namespace Parser
             }
             else
             {
-                Console.WriteLine("reject rule argslistprime");
+                //Console.WriteLine("reject rule argslistprime");
                 Reject();
             }
         }
@@ -1150,7 +1152,7 @@ namespace Parser
 		public static void Reject()
 		{
 			Console.WriteLine("REJECT");
-            Console.ReadKey();
+            
 			  Environment.Exit(0);
 		}
 

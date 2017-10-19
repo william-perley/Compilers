@@ -6,7 +6,7 @@ id main
 
 keyword int
 
-id a
+id x
 
 )
 
@@ -14,33 +14,29 @@ id a
 
 keyword int
 
-id x
+id a
 
 ;
 
-id x
+keyword int
 
-=
-
-int 0
+id b
 
 ;
 
-keyword if
+keyword return
 
 (
 
-id x
+id a
 
 +
 
-int 0
+id b
 
 )
 
-{
-
-}
+;
 
 }
 

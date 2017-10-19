@@ -1,0 +1,13 @@
+William Perley N00636615 COP 4620
+
+Part 2 of C- Compiler, Parser
+Due 10/19/17 Submitted 10/19/17
+
+Part of of the Compiler is the Parser. This program works by having the
+lexical Analyzer in Project one out to a file called Tokens.txt. After that,
+the Parser will read in the file and being parsing. The parsing is done by 
+recursive descent, and a table was created to help guide the parser. At any 
+time, if there is an error, the program will call the "Reject()" function
+and proceed to display "REJECT" and end the session. However, if the parser
+is able to navigate through all the way and there are no issues, then the
+program will display "ACCEPT" and will then end the program.
