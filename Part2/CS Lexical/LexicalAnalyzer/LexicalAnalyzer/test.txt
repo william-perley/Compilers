@@ -1,0 +1,9 @@
+/* g_t30 */
+ int main(int b)
+ {
+    float a;
+    float b;
+    float c;
+    b = 5.32 * c;
+ 
+ }

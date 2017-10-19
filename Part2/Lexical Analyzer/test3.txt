@@ -1,9 +1,0 @@
-void main()  
- int xxxx;
- {
- for ( ii >= 23.4 ) {
-    if(v ==  0) return;
-    while ( xxx <= 55 )
-       xxx = yyy + 23;
-    }
- }

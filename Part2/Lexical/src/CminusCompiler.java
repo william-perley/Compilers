@@ -8,9 +8,9 @@
 
 //
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 import java.util.Arrays;
+
 
 public class CminusCompiler {
 
@@ -38,29 +38,36 @@ class LexicalAnalyzer {
     }
 
     public void processFile() {
-
+        BufferedWriter writer = null;
         BufferedReader bufferedReader = null;
         String nextLine;
         try {
             bufferedReader = new BufferedReader(new FileReader(fileName));
-
+            writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream("tokens.txt"), "utf-8"));
             while ((nextLine = bufferedReader.readLine()) != null) {
-                processLine(nextLine);
+                processLine(nextLine, writer);
             }
         } catch (Exception e) {
 
         }
+        try{
+            writer.close();
+        }
+        catch (IOException e){
+
+        }
     }
 
-    private void processLine(String line) {
+    private void processLine(String line, BufferedWriter writer) {
 
         String charSequence = null;
         String errorSequence = null;
         String numSequence = null;
 
-        if (!line.isEmpty()) {
-            System.out.println("INPUT: " + line);
-        }
+//        if (!line.isEmpty()) {
+//            System.out.println("INPUT: " + line);
+//        }
 
         for (int index = 0; index < line.length(); index++) {
 
@@ -103,7 +110,7 @@ class LexicalAnalyzer {
                 // Check if the character is part of a character sequence
                 if (isLetter(c)) {
                     if(numSequence != null){
-                        printNumber(numSequence);
+                        printNumber(numSequence, writer);
                         numSequence = null;
                     }
                     if (charSequence == null) {
@@ -113,15 +120,15 @@ class LexicalAnalyzer {
                     }
                     continue;
                 } else if ((charSequence != null) && (isNumber(c) == true)) {
-                    printCharSequence(charSequence);
+                    printCharSequence(charSequence, writer);
                     charSequence = null;
                     continue;
                 } else if (charSequence != null) {
-                    printCharSequence(charSequence);
+                    printCharSequence(charSequence, writer);
                     charSequence = null;
                 }else if (isNumber(c)) {
                     if(charSequence != null){
-                        printCharSequence(charSequence);
+                        printCharSequence(charSequence, writer);
                         charSequence = null;
                     }
                     if (numSequence == null) {
@@ -134,7 +141,7 @@ class LexicalAnalyzer {
                     numSequence += String.valueOf(c);
                     continue;
                 } else if (numSequence != null) {
-                    printNumber(numSequence);
+                    printNumber(numSequence, writer);
 
                     numSequence = null;
 
@@ -156,7 +163,13 @@ class LexicalAnalyzer {
 
                 // Check if the character is a delimeter
                 if (isDelimeter(c)) {
-                    System.out.println(c);
+                    //System.out.println(c);
+                    try{writer.write(c +"\n");
+                        writer.newLine();
+                    }
+                    catch (IOException e){
+
+                    }
                     continue;
                 }
 
@@ -186,27 +199,50 @@ class LexicalAnalyzer {
             System.out.println("Error: " + errorSequence);
         }
         if (charSequence != null) {
-            printCharSequence(charSequence);
+            printCharSequence(charSequence, writer);
         }
         if (numSequence != null) {
-            printNumber(numSequence);
+            printNumber(numSequence, writer);
         }
     }
 
-    private void printCharSequence(String charSequence) {
+    private void printCharSequence(String charSequence, BufferedWriter writer) {
         if (isKeyword(charSequence)) {
-            System.out.println("keyword: " + charSequence);
+            //System.out.println("keyword: " + charSequence);
+            try{writer.write("keyword " + charSequence +"\n");
+                writer.newLine();
+            }
+            catch (IOException e){
+
+            }
         } else {
-            System.out.println("ID: " + charSequence);
+            //System.out.println("ID: " + charSequence);
+            try{writer.write("id " + charSequence +"\n");
+                writer.newLine();
+            }
+            catch (IOException e){
+
+            }
         }
     }
 
-    private void printNumber(String numSequence) {
+    private void printNumber(String numSequence, BufferedWriter writer) {
         if (isValidNumber(numSequence)) {
             if (isFloat(numSequence)) {
-                System.out.println("Float: " + numSequence);
+                //System.out.println("Float: " + numSequence);
+                try{writer.write("float " + numSequence);
+                    writer.newLine();
+                }
+                catch (IOException e){
+
+                }
             } else {
-                System.out.println("Int: " + numSequence);
+                //System.out.println("Int: " + numSequence);
+                try{writer.write("int " + numSequence +"\n");
+                    writer.newLine();}
+                catch (IOException e){
+
+                }
             }
         } else {
             System.out.println("Error: " + numSequence);
@@ -216,9 +252,9 @@ class LexicalAnalyzer {
     private boolean isDelimeter(char possibleDelimeter) {
 
         Character[] delimeters = new Character[]{'+', '-', '/', '*',
-            '=', '>', '<', '(',
-            ')', '[', ']', '{',
-            '}', ',', ';'};
+                '=', '>', '<', '(',
+                ')', '[', ']', '{',
+                '}', ',', ';'};
 
         return Arrays.asList(delimeters).contains(possibleDelimeter);
     }
@@ -250,7 +286,7 @@ class LexicalAnalyzer {
     private boolean isNumber(char possibleNumber) {
 
         Character[] numbers = new Character[]{'1', '2', '3', '4', '5', '6',
-            '7', '8', '9', '0', 'E', '.'};
+                '7', '8', '9', '0', 'E', '.'};
         return Arrays.asList(numbers).contains(possibleNumber);
     }
 
@@ -283,8 +319,8 @@ class LexicalAnalyzer {
                     return true;
                 }
             }else {
-               return false;
-           }
+                return false;
+            }
         } else {
             return false;
         }
@@ -305,3 +341,4 @@ class LexicalAnalyzer {
         }
     }
 }
+
