@@ -1,0 +1,46 @@
+keyword int
+
+id main
+
+(
+
+keyword int
+
+id a
+
+)
+
+{
+
+keyword int
+
+id x
+
+;
+
+id x
+
+=
+
+int 0
+
+;
+
+keyword if
+
+(
+
+id x
+
++
+
+int 0
+
+)
+
+{
+
+}
+
+}
+

@@ -96,6 +96,7 @@ namespace Parser
             FileBeingRead inputFile = new FileBeingRead();
             FunProgram(inputFile);
             Console.WriteLine("ACCEPT");
+            Console.ReadKey();
             
         }
         //Program -> Declaration-List
@@ -432,6 +433,7 @@ namespace Parser
             List<string> firstToken = new List<string>() { "int", "void", "float" };
             List<string> secondToken = new List<string>() { "id", "(", ";", "{", "int", "float" };
             List<string> thirdToken = new List<string>() { "if", "while", "return" };
+            string fourthToken = "}";
             string keywordToken = inputFile.KeyWord();
 
             if (firstToken.Contains(keywordToken))
@@ -461,6 +463,10 @@ namespace Parser
             {
                 return;
             }
+            else if (currentToken == fourthToken)
+            {
+                return;
+            }
             else
             {
                 Console.WriteLine("reject rule localdeclarationsprime and current token = " + currentToken);
@@ -471,11 +477,20 @@ namespace Parser
         public static void StatementListPrime(FileBeingRead inputFile, string currentToken)
         {
             List<string> firstToken = new List<string>() { "id", "(", ";", "{", "int", "float", "if", "return", "while" };
+            string secondToken = "else";
             string thirdToken = "}";
             string keywordToken = inputFile.KeyWord();
 
             if (firstToken.Contains(currentToken) || firstToken.Contains(keywordToken))
             {
+                Statement(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                StatementListPrime(inputFile, currentToken);
+            }
+            else if(keywordToken == secondToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
                 Statement(inputFile, currentToken);
                 currentToken = inputFile.CurrentToken();
                 StatementListPrime(inputFile, currentToken);
@@ -689,8 +704,8 @@ namespace Parser
         public static void ReturnStatement(FileBeingRead inputFile, string currentToken)
         {
             string firstToken = "return";
-
-            if (currentToken == firstToken)
+            string keywordToken = inputFile.KeyWord();
+            if (keywordToken == firstToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
@@ -775,6 +790,8 @@ namespace Parser
         {
             List<string> firstToken = new List<string>() { "[", "=", "*", "/", "<=", "<", ">", ">=", "==", "!=", "+", "-"};
             List<string> secondToken = new List<string>() { ";", ",", ")", "]" };
+            string thirdToken = "(";
+            string fourthToken = ")";
 
             if (firstToken.Contains(currentToken))
             {
@@ -785,6 +802,28 @@ namespace Parser
             else if (secondToken.Contains(currentToken))
             {
                 return;
+            }
+            else if (currentToken == thirdToken)
+            {
+                inputFile.NextToken();
+                currentToken = inputFile.CurrentToken();
+                Args(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                if (currentToken == fourthToken)
+                {
+                    inputFile.NextToken();
+                }
+                else
+                {
+                    Console.WriteLine("reject rulef fourth token " +currentToken);
+                    Reject();
+                }
+                currentToken = inputFile.CurrentToken();
+                TermPrime(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleB(inputFile, currentToken);
+                currentToken = inputFile.CurrentToken();
+                RuleS(inputFile, currentToken);
             }
             else
             {
@@ -941,7 +980,7 @@ namespace Parser
         //TermPrime -> Mulop Factor TermPrime B || empty
         public static void TermPrime(FileBeingRead inputFile, string currentToken)
         {
-            List<string> firstToken = new List<string>() { ";", ",", ")", "=", "<=", "<", ">", ">=", "==", "!=", "+", "-" };
+            List<string> firstToken = new List<string>() { ";", ",", ")", "=", "<=", "<", ">", ">=", "==", "!=", "+", "-", "]" };
             List<string> secondToken = new List<string>() { "*", "/" };
 
             if (firstToken.Contains(currentToken))
@@ -1111,8 +1150,8 @@ namespace Parser
 		public static void Reject()
 		{
 			Console.WriteLine("REJECT");
-            
-			Environment.Exit(0);
+            Console.ReadKey();
+			  Environment.Exit(0);
 		}
 
 	}

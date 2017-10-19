@@ -1,0 +1,352 @@
+ ----------------------Test 0--------------------------------
+ void main(void)    /* g _t0 */
+ {
+ int q;
+ int b;
+         b = b + q;
+ }
+-----------------------Test 1---------------------------------
+ /* should parse while and if and function t1 */
+ int q;
+ void monkey(void)
+ {
+ int q;
+ void a[4];
+ int b;
+ void c;
+ 
+ b=b/2;
+ while (b==3)
+ {
+ int x;
+ x=q+2;
+ }
+ if (c==b)
+ {
+ a[car(1)]=3;
+ a[2+1]=3;
+ c=car(4);
+ }
+ 
+ }
+ 
+ int d;
+ 
+ int car(int j)
+ {
+ int q[3];
+ 
+ q=j+4;
+ }
+----------------------Test 2-----------------------------
+ /* ggg */
+ 
+ void main(void) {
+    int x;
+    float y;
+    if (x > y)
+    { 
+       x = 5;
+    }
+ }
+----------------------Test 3--------------------------------
+ /* g */
+ int main(int b)
+ {
+    float a[10];
+    float b;
+    float c;
+    int i;
+    b = 5.32E02 / c + a[i];
+ 
+ }
+-----------------------Test 4------------------------------
+ /* g_t30 */
+ int main(int b)
+ {
+    float a;
+    float b;
+    float c;
+    b = 5.32 * c;
+ 
+ }
+-----------------------Test 5-----------------------------
+ /* g_t29 */
+ int main(int b)
+ {
+    int a;
+    int b;
+    int c;
+    b = 5 * (x(a,b,c));
+ 
+ }
+-----------------------Test 6-----------------------------
+ /* should parse void function parms t28   */
+ void main(void)
+ {
+    void i;
+    void j;
+    car (i, j);
+ }
+ 
+ 
+ int car(void x, void y)
+ {
+    int q;
+    
+    q=x+4;
+ 
+    return q;
+ }
+----------------------Test 7-----------------------------
+ running n00840585d on t27
+ void main(void) /* gt27 */
+ {
+    int q;   
+    int a[4];
+    int b;
+         b = b + q + a[1];
+ }
+----------------------Test 8-----------------------------
+ running n00840585d on t26
+ /* should parse while and if and function t26 */
+ int q;
+ void monkey(void)
+ {
+    int q;   
+    void a[4];
+    int b;
+    void c;
+ 
+    b=b/2;
+    while (b==3)
+    {
+       int x;
+       x=q+2;
+    }
+    if (c==b)
+    {
+       a[car(1)]=3;
+       a[2+1]=3;
+       c=car(4);
+    }
+    
+ }
+ 
+ int d;
+ 
+ int car(int j)
+ {
+    int q[3];
+    
+    q=j+4;
+ }
+----------------------Test 9--------------------------------
+ running n00840585d on t25
+ 
+ void monkey(void)
+ {                        /* gt25 */
+    int q;   
+    void a[4];
+    int b;
+    void c;
+ 
+    b=b/2;
+    while (b==3)
+    {
+       int x;
+       x=q+2;
+    }
+    if (c==b)
+    {
+       a[car(1)]=3;
+       a[2+1]=3;
+       c=car(4);
+    }
+ }
+ 
+ int d;
+ void main(void)
+ {
+    int q[3];
+    q=j+4;
+ }
+------------------Test 10------------------------------------
+ running n00840585d on t22
+ /* g_t22 */
+ int gcd (int u, int v)
+ {       if (v == 0) return u ;
+         else return gcd(v,u-u/v*v);
+ }
+ 
+ void main(int x)
+ {       int x; int y;
+         x = input(); y = input();
+         ouput(gcd(x,y));
+ }
+------------------Test 11----------------------------------------
+ running n00840585d on t13
+ /* gd _t13 */
+ int main(int x)
+ {
+    return ;
+ }
+ -----------------Test 12------------------------------------ 
+ /* g_t20 */
+ int main(int x)
+ {
+ 
+    int a;
+    int b;
+ 
+     a+b;
+ }
+ ------------------Test 13----------------------------------
+ /* g_t19 */
+ int main(int x)
+ {
+ 
+    int a;
+    int b;
+    int c;
+    int d;
+ 
+    a = b = c = d + 3;
+ 
+ }
+---------------------Test 14-------------------------------
+ /* g_t18 */
+ int main(int x)
+ {
+ 
+    int a[15];
+    int b;
+    int c;
+ 
+     b = c * x + a[b] / c;
+ 
+ }
+ -------------------Test 15---------------------------------
+ /* g_t17 */
+ int main(int x)
+ {
+ 
+    int a;
+    int b;
+    int c;
+ 
+    a = b = c;
+ 
+ }
+-------------------Test 16 ----------------------------------
+ /* g_t16 */
+ int main(int a)
+ {
+ 
+    int x;
+ 
+    x = 0;
+    if(x + 0)
+    {
+    }
+ 
+ }
+---------------------Test 17 --------------------------------
+ /* gd _t15 */
+ void main(int x)
+ {
+    int x;
+    x = 0;
+    while(x == 0)
+    {
+        x = 5;
+    }
+ }
+ -------------------Test 18---------------------------------
+ /* gd _t14 */
+ int main(void)
+ {
+ 
+    int x;
+ 
+    x = 0;
+ 
+ }
+ --------------------Test 19----------------------------------
+ /* gd _t13 */
+ int main(int x)
+ {
+    return ;
+ }
+ -----------Test 20------------------------
+ /* gd _t12 */
+ int main(void)
+ {
+    int a;
+    if(a < 8) 
+    {
+        a;
+    }
+ }
+ ---------------------Test 21---------------------------------
+ /* gd _t8 */
+ int main(int b)
+ {
+    int a;
+    int b[10];
+ 
+    while(1)
+    {
+       while(1)
+       {
+         a < b[8 + f(1)];
+       }
+    }
+ 
+ }
+ ----------------------Test 22---------------------------------
+ /* gd _t7 */
+ int main(int b)
+ {
+    int a;
+    int b[10];
+    int c;
+    a < b[8 + 5];
+    a <= b;
+    a > b;
+    a >= b;
+    a == b;
+    a != b;
+ }
+ --------------------Test 23-----------------------------------
+ /* gd _t6 */
+ int main(int b)
+ {
+    int a;
+    int b;
+    int c;
+    b = a + c * b;
+ }
+ --------------------Test 24-----------------------------------
+ /* gd _t5 */
+ int main(int b)
+ {
+ 
+    x(a,b,c);
+ 
+ }
+ --------------------Test 25-----------------------------------
+ /* gd _t4 */
+ int main(int b)
+ {
+    x();
+ }
+ ----------------------Test 26---------------------------------
+ /* gd _t3 */
+ int main(int x)
+ {
+    int a;
+    int b;
+     return (a + b);
+ }
+
