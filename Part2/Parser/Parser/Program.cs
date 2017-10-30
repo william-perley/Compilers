@@ -345,7 +345,7 @@ namespace Parser
                 Reject();
             }
         }
-        //Z -> ID M
+        //Z -> ID M || Empty
         public static void RuleZ(FileBeingRead inputFile, string currentToken)
         {
             string firstToken = "id";
