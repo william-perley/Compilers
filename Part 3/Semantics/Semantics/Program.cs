@@ -1279,8 +1279,12 @@ namespace Parser
         public bool IsVariable()
         {
             string[] token = lines[x].Split(' ');
-            token[1];
-            return false;
+            var t = token[1].GetType();
+            if(t = )
+            {
+                return false;
+            }
+            return true;
         }
     }
     class SymbolTable
