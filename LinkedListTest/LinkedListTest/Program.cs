@@ -14,11 +14,26 @@ namespace LinkedListTest
 
             list.AddToken("this");
             list.AddToken("that");
+            Console.WriteLine("First List");
+            list.CurrentTokenList();
             list.AddNewDepth();
             list.AddToken("this1");
             list.AddToken("that1");
+            list.ConcatToToken("that1");
+            Console.WriteLine("second list");
+            list.CurrentTokenList();
             list.AddNewDepth();
-            Console.WriteLine();
+            list.AddToken("hi");
+            list.AddToken("bye");
+            Console.WriteLine("third list");
+            list.CurrentTokenList();
+            list.AddNewDepth();
+            list.GoUpDepth();
+            Console.WriteLine("second list?");
+            list.CurrentTokenList(); 
+            bool isDeclared = list.IsTokenDeclared("this");
+            bool exist = list.DoesTokenExist("this1");
+            Console.WriteLine(isDeclared + " " + exist);
             Console.ReadKey();
         }
     }
@@ -27,6 +42,7 @@ namespace LinkedListTest
     class SymbolTable
     {
         int currentNodeIndex = 0;
+        int currentTokenIndex = 0;
         List<List<string>> depth = new List<List<string>>();
         List<string> tokens = new List<string>();
 
@@ -36,21 +52,31 @@ namespace LinkedListTest
             depth.Add(new List<string>(tokens));
             tokens.Clear();
             currentNodeIndex++;
+            currentTokenIndex = 0;
            
 
         }
 
         public void GoUpDepth()
         {
-            depth.RemoveAt(currentNodeIndex);
+            depth.RemoveAt(currentNodeIndex -1);
             currentNodeIndex--;
             tokens.Clear();
-            tokens = depth[currentNodeIndex];
+            tokens = depth[currentNodeIndex -1];
+            currentNodeIndex = tokens.Count() - 1;
         }
 
         public void AddToken(string token)
         {
             tokens.Add(token);
+            currentTokenIndex++;
+        }
+
+        public void ConcatToToken(string token)
+        {
+            string test = tokens[currentTokenIndex - 1];
+            test = "hi hi " + test;
+            tokens[currentTokenIndex - 1] = test;
         }
 
         public bool IsTokenDeclared(string token)
@@ -87,52 +113,5 @@ namespace LinkedListTest
                 Console.WriteLine("Token in Tokens is " + t);
             }
         }
-
-            //var myLoL = new List<List<string>>();
-
-            //List<string> cNode = myLoL[cNodeIndex];
-            //myLoL.RemoveAt(cNodeIndex);
-            //cNode = myLoL[cNodeIndex];
-            //cNode.add
-
-
-            //var inner = new List<string>();
-            //inner.Add("afjiopf");
-            //myLoL.Add(inner);
-
-            //myLoL.Add(inner);
-
-            //myLoL.Add(inner);
-
-            //myLoL.Add(inner);
-
-            //int count = myLoL.Count;
-            //for (int i=0; i<count; i++)
-            //{
-                
-            //}
-
-            //var myEnumerator = myLoL.GetEnumerator();
-            //while (myEnumerator.MoveNext())
-            //{
-            //    if (myEnumerator.Current.Contains("awjief"))
-            //    {
-
-            //    }
-            //}
-
-
-            //foreach (string innerList in myLoL)
-            //{
-            //    if (innerList.Contains("myStrofjaepje"))
-            //    {
-            //        // jefaop break; return true;
-            //    }
-            //}
-
-
-
-        
     }
-       
 }

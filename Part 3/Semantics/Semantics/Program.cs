@@ -87,20 +87,22 @@ namespace Parser
         static void Main(string[] args)
         {
             BeginParsing();
-            
+
         }
 
         public static void BeginParsing()
         {
             //Creates an object that is the file of tokens that will be passed through the project.
             FileBeingRead inputFile = new FileBeingRead();
-            FunProgram(inputFile);
+            SymbolTable symbolTable = new SymbolTable();
+            string nextSymbolTableInput;
+            FunProgram(inputFile, symbolTable);
             Console.WriteLine("ACCEPT");
-            
-            
+
+
         }
         //Program -> Declaration-List
-        public static void FunProgram(FileBeingRead inputFile)
+        public static void FunProgram(FileBeingRead inputFile, SymbolTable symbolTable)
         {
             string currentToken = inputFile.CurrentToken();
             string keywordToken = inputFile.KeyWord();
@@ -108,7 +110,7 @@ namespace Parser
 
             if (firstTokens.Contains(keywordToken))
             {
-                DeclarationList(inputFile, currentToken);
+                DeclarationList(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -118,18 +120,18 @@ namespace Parser
             }
         }
         //Declaration-List -> Type-Specifier C Declaratioin-ListPrime
-        public static void DeclarationList(FileBeingRead inputFile, string currentToken)
+        public static void DeclarationList(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstTokens = new List<string>() { "int", "void", "float" };
             string keywordToken = inputFile.KeyWord();
 
             if (firstTokens.Contains(keywordToken))
             {
-                TypeSpecifier(inputFile, currentToken);
+                TypeSpecifier(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleC(inputFile, currentToken);
+                RuleC(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                DeclarationListPrime(inputFile, currentToken);
+                DeclarationListPrime(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -138,22 +140,23 @@ namespace Parser
             }
         }
         //Declaration-ListPrime -> Type-Specifier C Declaration-ListPrime || Empty
-        public static void DeclarationListPrime(FileBeingRead inputFile, string currentToken)
+        public static void DeclarationListPrime(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstTokens = new List<string>() { "int", "void", "float" };
             string keywordToken = inputFile.KeyWord();
             currentToken = inputFile.CurrentToken();
             if (firstTokens.Contains(keywordToken))
             {
-                TypeSpecifier(inputFile, currentToken);
+                TypeSpecifier(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleC(inputFile, currentToken);
+                RuleC(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                DeclarationListPrime(inputFile, currentToken);
+                DeclarationListPrime(inputFile, currentToken, symbolTable);
 
             }
-            else if (inputFile.EndofFile(currentToken)) {
-                
+            else if (inputFile.EndofFile(currentToken))
+            {
+
                 return;
             }
             else
@@ -163,15 +166,17 @@ namespace Parser
             }
         }
         //C -> ID X
-        public static void RuleC(FileBeingRead inputFile, string currentToken)
+        public static void RuleC(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string token = "id";
-
+            string idName = inputFile.IdName();
             if (currentToken == token)
             {
+
+                symbolTable.ConcatTokenBefore(idName);
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                RuleX(inputFile, currentToken);
+                RuleX(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -180,7 +185,7 @@ namespace Parser
             }
         }
         // X -> (Params) Compound Statement || Y
-        public static void RuleX(FileBeingRead inputFile, string currentToken)
+        public static void RuleX(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstTokens = new List<string> { ";", "[" };
             string secondToken = "(";
@@ -188,18 +193,21 @@ namespace Parser
 
             if (firstTokens.Contains(currentToken))
             {
-                RuleY(inputFile, currentToken);
-            } else if (currentToken == secondToken)
+                RuleY(inputFile, currentToken, symbolTable);
+            }
+            else if (currentToken == secondToken)
             {
+                
+                
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Params(inputFile, currentToken);
+                Params(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == thirdToken)
                 {
                     inputFile.NextToken();
                     currentToken = inputFile.CurrentToken();
-                    CompoundStatement(inputFile, currentToken);
+                    CompoundStatement(inputFile, currentToken, symbolTable);
                 }
                 else
                 {
@@ -214,15 +222,16 @@ namespace Parser
             }
         }
         //Y -> ; || [ NUM ] 
-        public static void RuleY(FileBeingRead inputFile, string currentToken)
+        public static void RuleY(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = ";";
             string secondToken = "[";
             string thirdToken = "]";
-            List<string> fourthToken = new List<string>() { "int", "float" };
+            string fourthToken =  "int";
 
             if (currentToken == firstToken)
             {
+                symbolTable.AddCurrentStringToTokens();
                 inputFile.NextToken();
 
             }
@@ -232,7 +241,7 @@ namespace Parser
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
                 //For 'NUM'
-                if (fourthToken.Contains(currentToken))
+                if (fourthToken== currentToken)
                 {
                     inputFile.NextToken();
                 }
@@ -273,13 +282,14 @@ namespace Parser
             }
         }
         //Type-Specifier -> int || void || float
-        public static void TypeSpecifier(FileBeingRead inputFile, string currentToken)
+        public static void TypeSpecifier(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string> { "int", "void", "float" };
             string keywordToken = inputFile.KeyWord();
 
             if (firstToken.Contains(keywordToken))
             {
+                symbolTable.AddCurrentString(keywordToken);
                 inputFile.NextToken();
             }
             else
@@ -289,16 +299,16 @@ namespace Parser
             }
         }
         //Params -> Param Param-listPrime
-        public static void Params(FileBeingRead inputFile, string currentToken)
+        public static void Params(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string> { "int", "void", "float" };
             string keywordToken = inputFile.KeyWord();
 
             if (firstToken.Contains(keywordToken))
             {
-                Param(inputFile, currentToken);
+                Param(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                ParamListPrime(inputFile, currentToken);
+                ParamListPrime(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -307,17 +317,19 @@ namespace Parser
             }
         }
         //Param-listPrime -> , param || Empty
-        public static void ParamListPrime(FileBeingRead inputFile, string currentToken)
+        public static void ParamListPrime(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = ",";
             string secondToken = ")";
 
             if (currentToken == firstToken)
             {
+                
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Param(inputFile, currentToken);
-            } else if (currentToken == secondToken)
+                Param(inputFile, currentToken, symbolTable);
+            }
+            else if (currentToken == secondToken)
             {
                 return;
             }
@@ -328,16 +340,16 @@ namespace Parser
             }
         }
         //Param -> type-specifier Z
-        public static void Param(FileBeingRead inputFile, string currentToken)
+        public static void Param(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstTokens = new List<string>() { "int", "void", "float" };
             string keywordToken = inputFile.KeyWord();
 
             if (firstTokens.Contains(keywordToken))
             {
-                TypeSpecifier(inputFile, currentToken);
+                TypeSpecifier(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleZ(inputFile, currentToken);
+                RuleZ(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -346,16 +358,18 @@ namespace Parser
             }
         }
         //Z -> ID M || Empty
-        public static void RuleZ(FileBeingRead inputFile, string currentToken)
+        public static void RuleZ(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = "id";
             List<string> secondToken = new List<string>() { ",", ")" };
-
+            string idName = inputFile.IdName();
             if (currentToken == firstToken)
             {
+                symbolTable.AddCurrentString(idName);
+                symbolTable.AddType(inputFile);
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                RuleM(inputFile, currentToken);
+                RuleM(inputFile, currentToken, symbolTable);
             }
             else if (secondToken.Contains(currentToken))
             {
@@ -369,7 +383,7 @@ namespace Parser
             }
         }
         //M -> [ ] || Empty
-        public static void RuleM(FileBeingRead inputFile, string currentToken)
+        public static void RuleM(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> secondToken = new List<string>() { ",", ")" };
             string firstToken = "[";
@@ -387,7 +401,8 @@ namespace Parser
                     Console.WriteLine("reject rulem if statement and current token = " + currentToken);
                     Reject();
                 }
-            } else if (secondToken.Contains(currentToken))
+            }
+            else if (secondToken.Contains(currentToken))
             {
                 return;
             }
@@ -398,7 +413,7 @@ namespace Parser
             }
         }
         //Compound-Statement -> { local-declarationsPrime statement-listPrime }
-        public static void CompoundStatement(FileBeingRead inputFile, string currentToken)
+        public static void CompoundStatement(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = "{";
             string secondToken = "}";
@@ -406,14 +421,21 @@ namespace Parser
             if (firstToken == currentToken)
             {
                 inputFile.NextToken();
+                //See a "{", so need to increase depth
+                symbolTable.AddCurrentStringToTokens();
+                symbolTable.AddNewDepth();
                 currentToken = inputFile.CurrentToken();
-                LocalDeclarationsPrime(inputFile, currentToken);
+                LocalDeclarationsPrime(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                StatementListPrime(inputFile, currentToken);
+                StatementListPrime(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == secondToken)
                 {
                     inputFile.NextToken();
+                    //need to add new depth before going up so does not delete the state before the one currently working on
+                    symbolTable.AddNewDepth();
+                    //See a "}", so need to decrease depth
+                    symbolTable.GoUpDepth();
                 }
                 else
                 {
@@ -428,7 +450,7 @@ namespace Parser
             }
         }
         //Local-declarationsPrime -> type-specifier ID Y local-declarationPrime || Empty
-        public static void LocalDeclarationsPrime(FileBeingRead inputFile, string currentToken)
+        public static void LocalDeclarationsPrime(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "int", "void", "float" };
             List<string> secondToken = new List<string>() { "id", "(", ";", "{", "int", "float" };
@@ -438,7 +460,7 @@ namespace Parser
 
             if (firstToken.Contains(keywordToken))
             {
-                TypeSpecifier(inputFile, currentToken); 
+                TypeSpecifier(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == "id")
                 {
@@ -450,16 +472,12 @@ namespace Parser
                     Reject();
                 }
                 currentToken = inputFile.CurrentToken();
-                RuleY(inputFile, currentToken);
+                RuleY(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                LocalDeclarationsPrime(inputFile, currentToken);
+                LocalDeclarationsPrime(inputFile, currentToken, symbolTable);
 
             }
             else if (secondToken.Contains(currentToken) || thirdToken.Contains(keywordToken))
-            {
-                return;
-            }
-            else if (thirdToken.Contains(keywordToken))
             {
                 return;
             }
@@ -474,7 +492,7 @@ namespace Parser
             }
         }
         //Statement-ListPrime -> statement statement-listPrime || empty
-        public static void StatementListPrime(FileBeingRead inputFile, string currentToken)
+        public static void StatementListPrime(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "id", "(", ";", "{", "int", "float", "if", "return", "while" };
             string secondToken = "else";
@@ -483,17 +501,17 @@ namespace Parser
 
             if (firstToken.Contains(currentToken) || firstToken.Contains(keywordToken))
             {
-                Statement(inputFile, currentToken);
+                Statement(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                StatementListPrime(inputFile, currentToken);
+                StatementListPrime(inputFile, currentToken, symbolTable);
             }
-            else if(keywordToken == secondToken)
+            else if (keywordToken == secondToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Statement(inputFile, currentToken);
+                Statement(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                StatementListPrime(inputFile, currentToken);
+                StatementListPrime(inputFile, currentToken, symbolTable);
             }
             else if (currentToken == thirdToken)
             {
@@ -506,7 +524,7 @@ namespace Parser
             }
         }
         //Statement -> expression-statement || compound-statement || selection-statement || iteration-statement || return-statement
-        public static void Statement(FileBeingRead inputFile, string currentToken)
+        public static void Statement(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "id", "(", ";", "int", "float" };
             string secondToken = "{";
@@ -517,23 +535,23 @@ namespace Parser
 
             if (firstToken.Contains(currentToken))
             {
-                ExpressionStatement(inputFile, currentToken);
+                ExpressionStatement(inputFile, currentToken, symbolTable);
             }
             else if (currentToken == secondToken)
             {
-                CompoundStatement(inputFile, currentToken);
+                CompoundStatement(inputFile, currentToken, symbolTable);
             }
             else if (keywordToken == thirdToken)
             {
-                SelectionStatement(inputFile, currentToken);
+                SelectionStatement(inputFile, currentToken, symbolTable);
             }
             else if (keywordToken == fourthToken)
             {
-                ReturnStatement(inputFile, currentToken);
+                ReturnStatement(inputFile, currentToken, symbolTable);
             }
             else if (keywordToken == fifthToken)
             {
-                IterationStatement(inputFile, currentToken);
+                IterationStatement(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -542,14 +560,14 @@ namespace Parser
             }
         }
         //Expression-Statement -> expression ; || ;
-        public static void ExpressionStatement(FileBeingRead inputFile, string currentToken)
+        public static void ExpressionStatement(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "id", "(", "int", "float" };
             string secondToken = ";";
 
             if (firstToken.Contains(currentToken))
             {
-                Expression(inputFile, currentToken);
+                Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == secondToken)
                 {
@@ -563,6 +581,7 @@ namespace Parser
             }
             else if (currentToken == secondToken)
             {
+                symbolTable.AddCurrentStringToTokens();
                 inputFile.NextToken();
             }
             else
@@ -572,7 +591,7 @@ namespace Parser
             }
         }
         //Selection-Statement -> if A
-        public static void SelectionStatement(FileBeingRead inputFile, string currentToken)
+        public static void SelectionStatement(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = "if";
             string keywordToken = inputFile.KeyWord();
@@ -581,7 +600,7 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                RuleA(inputFile, currentToken);
+                RuleA(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -590,7 +609,7 @@ namespace Parser
             }
         }
         //A -> ( D
-        public static void RuleA(FileBeingRead inputFile, string currentToken)
+        public static void RuleA(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = "(";
 
@@ -598,7 +617,7 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                RuleD(inputFile, currentToken);
+                RuleD(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -607,15 +626,15 @@ namespace Parser
             }
         }
         //D -> Expression R
-        public static void RuleD(FileBeingRead inputFile, string currentToken)
+        public static void RuleD(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "id", "(", "int", "float" };
 
             if (firstToken.Contains(currentToken))
             {
-                Expression(inputFile, currentToken);
+                Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleR(inputFile, currentToken);
+                RuleR(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -624,15 +643,15 @@ namespace Parser
             }
         }
         //R -> ) T
-        public static void RuleR(FileBeingRead inputFile, string currentToken)
+        public static void RuleR(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = ")";
-            
+
             if (currentToken == firstToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                RuleT(inputFile, currentToken);
+                RuleT(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -641,7 +660,7 @@ namespace Parser
             }
         }
         //T -> Statement || else Statement
-        public static void RuleT(FileBeingRead inputFile, string currentToken)
+        public static void RuleT(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "id", "(", ";", "{", "int", "float", "if", "return", "while" };
             string secondToken = "else";
@@ -649,13 +668,13 @@ namespace Parser
 
             if (firstToken.Contains(currentToken) || firstToken.Contains(keywordToken))
             {
-                Statement(inputFile, currentToken);
+                Statement(inputFile, currentToken, symbolTable);
             }
             else if (currentToken == secondToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Statement(inputFile, currentToken);
+                Statement(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -664,7 +683,7 @@ namespace Parser
             }
         }
         //Iteration-Statement -> while (Expression) Statement
-        public static void IterationStatement(FileBeingRead inputFile, string currentToken)
+        public static void IterationStatement(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = "while";
             string secondToken = "(";
@@ -686,7 +705,7 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Expression(inputFile, currentToken);
+                Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
             }
             else
@@ -694,15 +713,15 @@ namespace Parser
                 Console.WriteLine("reject rule iterationstatement second token and current token = " + currentToken);
                 Reject();
             }
-            if(currentToken == thirdToken)
+            if (currentToken == thirdToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Statement(inputFile, currentToken);
+                Statement(inputFile, currentToken, symbolTable);
             }
         }
         //Return-Statement -> return U
-        public static void ReturnStatement(FileBeingRead inputFile, string currentToken)
+        public static void ReturnStatement(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = "return";
             string keywordToken = inputFile.KeyWord();
@@ -710,7 +729,7 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                RuleU(inputFile, currentToken);
+                RuleU(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -719,13 +738,13 @@ namespace Parser
             }
         }
         //U -> ExpressionStatement
-        public static void RuleU(FileBeingRead inputFile, string currentToken)
+        public static void RuleU(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "id", "(", ";", "[", "int", "float" };
 
             if (firstToken.Contains(currentToken))
             {
-                ExpressionStatement(inputFile, currentToken);
+                ExpressionStatement(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -734,7 +753,7 @@ namespace Parser
             }
         }
         //Expression -> ID F || ( Expression ) TermPrime B S || num TermPrime B S
-        public static void Expression(FileBeingRead inputFile, string currentToken)
+        public static void Expression(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = "id";
             string secondToken = "(";
@@ -746,23 +765,23 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                RuleF(inputFile, currentToken);
+                RuleF(inputFile, currentToken, symbolTable);
             }
-            else if(currentToken == secondToken)
+            else if (currentToken == secondToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Expression(inputFile, currentToken);
+                Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                if(currentToken == thirdToken)
+                if (currentToken == thirdToken)
                 {
                     inputFile.NextToken();
                     currentToken = inputFile.CurrentToken();
-                    TermPrime(inputFile, currentToken);
+                    TermPrime(inputFile, currentToken, symbolTable);
                     currentToken = inputFile.CurrentToken();
-                    RuleB(inputFile, currentToken);
+                    RuleB(inputFile, currentToken, symbolTable);
                     currentToken = inputFile.CurrentToken();
-                    RuleS(inputFile, currentToken);
+                    RuleS(inputFile, currentToken, symbolTable);
                 }
                 else
                 {
@@ -774,11 +793,11 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                TermPrime(inputFile, currentToken);
+                TermPrime(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleB(inputFile, currentToken);
+                RuleB(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleS(inputFile, currentToken);
+                RuleS(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -787,18 +806,18 @@ namespace Parser
             }
         }
         //F -> P G || ( Args ) TermPrime B || empty
-        public static void RuleF(FileBeingRead inputFile, string currentToken)
+        public static void RuleF(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
-            List<string> firstToken = new List<string>() { "[", "=", "*", "/", "<=", "<", ">", ">=", "==", "!=", "+", "-"};
+            List<string> firstToken = new List<string>() { "[", "=", "*", "/", "<=", "<", ">", ">=", "==", "!=", "+", "-" };
             List<string> secondToken = new List<string>() { ";", ",", ")", "]" };
             string thirdToken = "(";
             string fourthToken = ")";
 
             if (firstToken.Contains(currentToken))
             {
-                RuleP(inputFile, currentToken);
+                RuleP(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleG(inputFile, currentToken);
+                RuleG(inputFile, currentToken, symbolTable);
             }
             else if (secondToken.Contains(currentToken))
             {
@@ -808,7 +827,7 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Args(inputFile, currentToken);
+                Args(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == fourthToken)
                 {
@@ -816,15 +835,15 @@ namespace Parser
                 }
                 else
                 {
-                    Console.WriteLine("reject rulef fourth token " +currentToken);
+                    Console.WriteLine("reject rulef fourth token " + currentToken);
                     Reject();
                 }
                 currentToken = inputFile.CurrentToken();
-                TermPrime(inputFile, currentToken);
+                TermPrime(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleB(inputFile, currentToken);
+                RuleB(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleS(inputFile, currentToken);
+                RuleS(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -833,7 +852,7 @@ namespace Parser
             }
         }
         //G -> = Expression || TermPrime B S
-        public static void RuleG(FileBeingRead inputFile, string currentToken)
+        public static void RuleG(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { ";", ",", ")", "]" };
             List<string> secontToken = new List<string>() { "*", "/", "<=", "<", ">", ">=", "==", "!=", "+", "-" };
@@ -845,17 +864,17 @@ namespace Parser
             }
             else if (secontToken.Contains(currentToken))
             {
-                TermPrime(inputFile, currentToken);
+                TermPrime(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleB(inputFile, currentToken);
+                RuleB(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleS(inputFile, currentToken);
+                RuleS(inputFile, currentToken, symbolTable);
             }
-            else if(currentToken == thirdToken)
+            else if (currentToken == thirdToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Expression(inputFile, currentToken);
+                Expression(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -864,7 +883,7 @@ namespace Parser
             }
         }
         //P -> empty || [ Expression ]
-        public static void RuleP(FileBeingRead inputFile, string currentToken)
+        public static void RuleP(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { ";", ",", ")", "=", "*", "/", "<=", "<", ">", ">=", "==", "!=", "+", "-" };
             string secondToken = "[";
@@ -878,7 +897,7 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Expression(inputFile, currentToken);
+                Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == thirdToken)
                 {
@@ -897,7 +916,7 @@ namespace Parser
             }
         }
         //S -> Relop Factor TermPrime B || empty
-        public static void RuleS(FileBeingRead inputFile, string currentToken)
+        public static void RuleS(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { ";", ",", ")", "]" };
             List<string> secondToken = new List<string>() { "<=", "<", ">", ">=", "==", "!=", "+", "-" };
@@ -908,13 +927,13 @@ namespace Parser
             }
             else if (secondToken.Contains(currentToken))
             {
-                Relop(inputFile, currentToken);
+                Relop(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                Factor(inputFile, currentToken);
+                Factor(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                TermPrime(inputFile, currentToken);
+                TermPrime(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleB(inputFile, currentToken);
+                RuleB(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -923,7 +942,7 @@ namespace Parser
             }
         }
         //Relop -> <= || < || > || >= || == || !=
-        public static void Relop(FileBeingRead inputFile, string currentToken)
+        public static void Relop(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "<=", "<", ">", ">=", "==", "!=" };
 
@@ -938,7 +957,7 @@ namespace Parser
             }
         }
         //B -> Addop Factor TermPrime || empty
-        public static void RuleB(FileBeingRead inputFile, string currentToken)
+        public static void RuleB(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "<=", "<", ">", ">=", "==", "!=", "]", ")", ",", ";" };
             List<string> secondToken = new List<string>() { "+", "-" };
@@ -949,13 +968,13 @@ namespace Parser
             }
             else if (secondToken.Contains(currentToken))
             {
-                Addop(inputFile, currentToken);
+                Addop(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                Factor(inputFile, currentToken);
+                Factor(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                TermPrime(inputFile, currentToken);
+                TermPrime(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleB(inputFile, currentToken);
+                RuleB(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -964,7 +983,7 @@ namespace Parser
             }
         }
         //Addop -> + || -
-        public static void Addop(FileBeingRead inputFile, string currentToken)
+        public static void Addop(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "+", "-" };
 
@@ -979,7 +998,7 @@ namespace Parser
             }
         }
         //TermPrime -> Mulop Factor TermPrime B || empty
-        public static void TermPrime(FileBeingRead inputFile, string currentToken)
+        public static void TermPrime(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { ";", ",", ")", "=", "<=", "<", ">", ">=", "==", "!=", "+", "-", "]" };
             List<string> secondToken = new List<string>() { "*", "/" };
@@ -990,11 +1009,11 @@ namespace Parser
             }
             else if (secondToken.Contains(currentToken))
             {
-                Mulop(inputFile, currentToken);
+                Mulop(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                Factor(inputFile, currentToken);
+                Factor(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                TermPrime(inputFile, currentToken);
+                TermPrime(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -1003,7 +1022,7 @@ namespace Parser
             }
         }
         //Mulop -> * || /
-        public static void Mulop(FileBeingRead inputFile, string currentToken)
+        public static void Mulop(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "*", "/" };
             if (firstToken.Contains(currentToken))
@@ -1017,7 +1036,7 @@ namespace Parser
             }
         }
         //Factor -> ( Expression ) || id E || num
-        public static void Factor(FileBeingRead inputFile, string currentToken)
+        public static void Factor(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "float", "int" };
             string secondToken = "(";
@@ -1032,7 +1051,7 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Expression(inputFile, currentToken);
+                Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == fourthToken)
                 {
@@ -1048,7 +1067,7 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                RuleE(inputFile, currentToken);
+                RuleE(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -1057,7 +1076,7 @@ namespace Parser
             }
         }
         //E -> P || ( Args )
-        public static void RuleE(FileBeingRead inputFile, string currentToken)
+        public static void RuleE(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { ";", ",", ")", "=", "*", "/", "<=", "<", ">", ">=", "==", "!=", "+", "-", "]" };
             string secondToken = "(";
@@ -1072,7 +1091,7 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Args(inputFile, currentToken);
+                Args(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == thirdToken)
                 {
@@ -1087,7 +1106,7 @@ namespace Parser
             }
             else if (currentToken == fourthToken)
             {
-                RuleP(inputFile, currentToken);
+                RuleP(inputFile, currentToken, symbolTable);
             }
             else
             {
@@ -1096,7 +1115,7 @@ namespace Parser
             }
         }
         //Args -> Expression ArgsListPrime || empty
-        public static void Args(FileBeingRead inputFile, string currentToken)
+        public static void Args(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "id", "(" };
             List<string> secondToken = new List<string>() { "int", "float" };
@@ -1104,15 +1123,15 @@ namespace Parser
 
             if (firstToken.Contains(currentToken))
             {
-                Expression(inputFile, currentToken);
+                Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                ArgsListPrime(inputFile, currentToken);
+                ArgsListPrime(inputFile, currentToken, symbolTable);
             }
             else if (secondToken.Contains(currentToken))
             {
-                Expression(inputFile, currentToken);
+                Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                ArgsListPrime(inputFile, currentToken);
+                ArgsListPrime(inputFile, currentToken, symbolTable);
             }
             else if (currentToken == thirdToken)
             {
@@ -1125,18 +1144,18 @@ namespace Parser
             }
         }
         //ArgsListPrime -> , Expression ArgsListPrime || empty
-        public static void ArgsListPrime(FileBeingRead inputFile, string currentToken)
+        public static void ArgsListPrime(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = ",";
             string secondToken = ")";
 
-            if(currentToken == firstToken)
+            if (currentToken == firstToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Expression(inputFile, currentToken);
+                Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                ArgsListPrime(inputFile, currentToken);
+                ArgsListPrime(inputFile, currentToken, symbolTable);
             }
             else if (currentToken == secondToken)
             {
@@ -1148,78 +1167,137 @@ namespace Parser
                 Reject();
             }
         }
-		//Reject Statement and Terminates program
-		public static void Reject()
-		{
-			Console.WriteLine("REJECT");
-            
-			  Environment.Exit(0);
-		}
+        public static int NumberOfArguments(FileBeingRead inputFile)
+        {
+            string endToken = ")";
+            string currentToken = inputFile.CurrentToken();
+            int numberOfArguments = 0;
+            while (currentToken != endToken)
+            {
+                string keywordToken = inputFile.KeyWord();
+                if (currentToken != "," || currentToken != "null" || currentToken != "id")
+                {
+                    numberOfArguments++;
+                }
+                currentToken = inputFile.PeekAhead();
 
-	}
-    
-	class FileBeingRead
-	{
-		private int x = 0;
-		private string[] lines = System.IO.File.ReadAllLines(@"./tokens.txt");
+            }
+            return numberOfArguments;
+        }
+        //Reject Statement and Terminates program
+        public static void Reject()
+        {
+            Console.WriteLine("REJECT");
 
-		public void NextToken()
-		{
+            Environment.Exit(0);
+        }
+
+    }
+
+    class FileBeingRead
+    {
+        private int x = 0;
+        private string[] lines = System.IO.File.ReadAllLines(@"./tokens.txt");
+
+        public void NextToken()
+        {
             x++;
-			string token = lines[x];
-			while(  (x < lines.Length - 1) && (token == "" ))
-			{
+            string token = lines[x];
+            while ((x < lines.Length - 1) && (token == ""))
+            {
 
-				x++;
+                x++;
                 token = lines[x];
-			}
+            }
 
-		}
+        }
 
-		public string CurrentToken()
-		{
+        public string CurrentToken()
+        {
             string[] token = lines[x].Split(' ');
             return token[0];
-		}
+        }
 
+        public string PreviousToken()
+        {
+            string[] token = lines[x - 2].Split(' ');
+            return token[0];
+        }
+
+        public string PeekAhead()
+        {
+            int y = x;
+            string token = lines[y];
+            string[] returnToken;
+            while ((y < lines.Length - 1) && (token == ""))
+            {
+
+                y++;
+                token = lines[y];
+                returnToken = lines[y].Split(' ');
+                if(returnToken[0] == "keyword")
+                {
+                    return returnToken[1];
+                }
+                if(returnToken[0] == "id")
+                {
+                    return returnToken[0];
+                }
+            }
+            return "";
+        }
         
+        public string IdName()
+        {
+            string[] id = lines[x].Split(' ');
+            if (id[0] == "id")
+            {
+                return id[1];
+            }
+            return "error";
+        }
+
         public string KeyWord()
         {
-            
+
             string[] keyword = lines[x].Split(' ');
-            if(keyword[0] == "keyword")
+            if (keyword[0] == "keyword")
             {
                 return keyword[1];
             }
             return "error";
         }
 
-		public bool EndofFile(string currentToken)
-		{
-			if(x < lines.Length && currentToken == "")
-			{
-				return true;
-			}
-
-			return false;
-			
-		}
-
-	}
+        public bool EndofFile(string currentToken)
+        {
+            if (x < lines.Length && currentToken == "")
+            {
+                return true;
+            }
+            return false;
+        }
+        public bool IsVariable()
+        {
+            string[] token = lines[x].Split(' ');
+            token[1];
+            return false;
+        }
+    }
     class SymbolTable
     {
         int currentNodeIndex = 0;
+        int currentTokenIndex = 0;
         List<List<string>> depth = new List<List<string>>();
         List<string> tokens = new List<string>();
+        string currentString = "";
+        string intermittentString = "t";
+        int intermittentNumber = 0;
 
         public void AddNewDepth()
         {
-
             depth.Add(new List<string>(tokens));
             tokens.Clear();
             currentNodeIndex++;
-
-
         }
 
         public void GoUpDepth()
@@ -1230,16 +1308,41 @@ namespace Parser
             tokens = depth[currentNodeIndex - 1];
         }
 
-        public void AddToken(string token)
+        public void AddCurrentStringToTokens()
         {
-            tokens.Add(token);
+            tokens.Add(currentString);
+            currentString = "";
         }
 
-        public bool IsTokenDeclared(string token)
+        public void AddCurrentString(string input)
+        {
+            currentString = input;
+        }
+
+        public void AddType(FileBeingRead inputfile)
+        {
+            string tok = inputfile.PreviousToken();
+            string[] keyword = tok.Split(' ');
+            string temp = keyword[1];
+            ConcatTokenAfter(temp);
+        }
+
+        public void ConcatTokenBefore(string token)
+        {
+            currentString = token + " " + currentString;
+        }
+
+        public void ConcatTokenAfter(string token)
+        {
+            currentString = currentString + " " + token;
+        }
+
+        public bool IsTokenDeclared()
         {
             foreach (List<string> t in depth)
             {
-                if (t.Contains(token))
+
+                if (t.Contains(currentString))
                 {
                     return true;
                 }
@@ -1247,9 +1350,9 @@ namespace Parser
             return false;
         }
 
-        public bool DoesTokenExist(string token)
+        public bool DoesTokenExist()
         {
-            if (tokens.Contains(token))
+            if (tokens.Contains(currentString))
             {
                 return true;
             }
@@ -1262,15 +1365,20 @@ namespace Parser
             return false;
         }
 
-        public void CurrentTokenList()
+        public string TempStringCounter()
         {
-            foreach (string t in tokens)
-            {
-                Console.WriteLine("Token in Tokens is " + t);
-            }
+            intermittentString = intermittentString + intermittentNumber;
+            return intermittentString;
         }
-    }
 
+        //public void CurrentTokenList()
+        //{
+        //    foreach (string t in tokens)
+        //    {
+        //        Console.WriteLine("Token in Tokens is " + t);
+        //    }
+        //}
+    }
 }
 
 
