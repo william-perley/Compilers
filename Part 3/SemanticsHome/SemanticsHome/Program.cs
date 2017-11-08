@@ -196,8 +196,12 @@ namespace Parser
             }
             else if (currentToken == secondToken)
             {
-                
-                
+
+                //Add number of arguments and concat
+                int numbOfArguments = NumberOfArguments(inputFile);
+                symbolTable.ConcatTokenAfter(numbOfArguments.ToString());
+                AddArguments(inputFile, numbOfArguments, symbolTable);
+                symbolTable.AddCurrentStringToTokens();
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
                 Params(inputFile, currentToken, symbolTable);
@@ -226,7 +230,7 @@ namespace Parser
             string firstToken = ";";
             string secondToken = "[";
             string thirdToken = "]";
-            string fourthToken =  "int";
+            string fourthToken = "int";
 
             if (currentToken == firstToken)
             {
@@ -240,7 +244,7 @@ namespace Parser
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
                 //For 'NUM'
-                if (fourthToken== currentToken)
+                if (fourthToken == currentToken)
                 {
                     inputFile.NextToken();
                 }
@@ -288,6 +292,7 @@ namespace Parser
 
             if (firstToken.Contains(keywordToken))
             {
+                
                 symbolTable.AddCurrentString(keywordToken);
                 inputFile.NextToken();
             }
@@ -323,7 +328,7 @@ namespace Parser
 
             if (currentToken == firstToken)
             {
-                
+
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
                 Param(inputFile, currentToken, symbolTable);
@@ -456,13 +461,15 @@ namespace Parser
             List<string> thirdToken = new List<string>() { "if", "while", "return" };
             string fourthToken = "}";
             string keywordToken = inputFile.KeyWord();
-
+            //Add symbol table call in first token 
             if (firstToken.Contains(keywordToken))
             {
                 TypeSpecifier(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == "id")
                 {
+                    string idToken = inputFile.IdName();
+                    symbolTable.ConcatTokenBefore(idToken);
                     inputFile.NextToken();
                 }
                 else
@@ -1169,19 +1176,57 @@ namespace Parser
         public static int NumberOfArguments(FileBeingRead inputFile)
         {
             string endToken = ")";
-            string currentToken = inputFile.CurrentToken();
+            
             int numberOfArguments = 0;
+            int currentIndex = inputFile.CurrentIndex();
+            currentIndex++;
+            string currentToken = inputFile.PeekAhead(currentIndex);
             while (currentToken != endToken)
             {
-                string keywordToken = inputFile.KeyWord();
-                if (currentToken != "," || currentToken != "null" || currentToken != "id")
+                
+                if (currentToken == ",")
+                {
+                    
+                }
+                else if(currentToken.CompareTo("void") == 0)
+                {
+                    
+                }
+                else if (currentToken != "error")
+                {
+                    
+                }
+                else
                 {
                     numberOfArguments++;
                 }
-                currentToken = inputFile.PeekAhead();
+                
+                currentIndex += 2;
+                currentToken = inputFile.PeekAhead(currentIndex);
 
             }
             return numberOfArguments;
+        }
+        public static void AddArguments(FileBeingRead inputFile, int numbOfArguments, SymbolTable symbolTable)
+        {
+            string endToken = ")";
+            string currentToken = inputFile.CurrentToken();
+            
+            while (currentToken != endToken)
+            {
+                if(currentToken == "id")
+                {
+                    string id = inputFile.IdName();
+                    symbolTable.ConcatTokenAfter(id);
+                }
+                if(currentToken == "keyword")
+                {
+                    string keyword = inputFile.KeyWord();
+                    symbolTable.ConcatTokenAfter(keyword);
+                }
+
+                //currentToken = inputFile.PeekAhead();
+            }
         }
         //Reject Statement and Terminates program
         public static void Reject()
@@ -1198,6 +1243,10 @@ namespace Parser
         private int x = 0;
         private string[] lines = System.IO.File.ReadAllLines(@"./tokens.txt");
 
+        public int CurrentIndex()
+        {
+            return x;
+        }
         public void NextToken()
         {
             x++;
@@ -1223,9 +1272,9 @@ namespace Parser
             return token[0];
         }
 
-        public string PeekAhead()
+        public string PeekAhead(int y)
         {
-            int y = x;
+            
             string token = lines[y];
             string[] returnToken;
             while ((y < lines.Length - 1) && (token == ""))
@@ -1234,21 +1283,35 @@ namespace Parser
                 y++;
                 token = lines[y];
                 returnToken = lines[y].Split(' ');
-                if(returnToken[0] == "keyword")
+                if (returnToken[0] == "keyword")
                 {
                     return returnToken[1];
                 }
-                if(returnToken[0] == "id")
+                if (returnToken[0] == "id")
+                {
+                    return returnToken[1];
+                }
+                if (returnToken[0] == ")")
                 {
                     return returnToken[0];
                 }
             }
             return "";
         }
-        
+
         public string IdName()
         {
             string[] id = lines[x].Split(' ');
+            if (id[0] == "id")
+            {
+                return id[1];
+            }
+            return "error";
+        }
+
+        public string PeekAheadIdName(int y)
+        {
+            string[] id = lines[y].Split(' ');
             if (id[0] == "id")
             {
                 return id[1];
@@ -1260,6 +1323,16 @@ namespace Parser
         {
 
             string[] keyword = lines[x].Split(' ');
+            if (keyword[0] == "keyword")
+            {
+                return keyword[1];
+            }
+            return "error";
+        }
+
+        public string PeekAheadKeyword(int y)
+        {
+            string[] keyword = lines[y].Split(' ');
             if (keyword[0] == "keyword")
             {
                 return keyword[1];
@@ -1279,7 +1352,7 @@ namespace Parser
         {
             string[] token = lines[x].Split(' ');
             var t = token[1].GetType().ToString();
-            if(t != "String")
+            if (t != "String")
             {
                 return false;
             }

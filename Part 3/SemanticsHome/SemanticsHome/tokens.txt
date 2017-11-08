@@ -20,11 +20,11 @@ keyword int
 
 id b
 
-=
-
-int 2
-
 ;
 
+id b
+=
+int 3
+;
 }
 
