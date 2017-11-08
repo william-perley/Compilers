@@ -1,2 +1,4 @@
-while (b!=3)
-{ int x; x=q+2; }
+void main (void){
+while(x=1){
+}
+}

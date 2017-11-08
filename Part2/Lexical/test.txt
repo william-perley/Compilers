@@ -1,9 +1,10 @@
 /* g_t30 */
- int main(int b)
+void main(void)
  {
-    float a;
-    float b;
-    float c;
-    b = 5.32 * c;
+    int x;
+    x = 1;
+    while (x=1){
+
+}
  
  }

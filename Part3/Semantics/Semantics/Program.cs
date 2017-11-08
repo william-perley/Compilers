@@ -96,6 +96,7 @@ namespace Parser
             FileBeingRead inputFile = new FileBeingRead();
             SymbolTable symbolTable = new SymbolTable();
             FunProgram(inputFile, symbolTable);
+            symbolTable.CurrentTokenList();
             Console.WriteLine("ACCEPT");
 
 
@@ -171,8 +172,9 @@ namespace Parser
             string idName = inputFile.IdName();
             if (currentToken == token)
             {
-
-                symbolTable.ConcatTokenBefore(idName);
+                //symbol table add type
+                symbolTable.AddCurrentString(idName);
+                symbolTable.AddType(inputFile);
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
                 RuleX(inputFile, currentToken, symbolTable);
@@ -202,6 +204,7 @@ namespace Parser
                 symbolTable.ConcatTokenAfter(numbOfArguments.ToString());
                 AddArguments(inputFile, numbOfArguments, symbolTable);
                 symbolTable.AddCurrentStringToTokens();
+                symbolTable.AddNewDepth();
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
                 Params(inputFile, currentToken, symbolTable);
@@ -293,7 +296,7 @@ namespace Parser
             if (firstToken.Contains(keywordToken))
             {
                 //Symbol Table Modification here
-                //symbolTable.AddCurrentString(keywordToken);
+                //symbolTable.ConcatTokenAfter(keywordToken);
                 inputFile.NextToken();
             }
             else
@@ -369,7 +372,7 @@ namespace Parser
             string idName = inputFile.IdName();
             if (currentToken == firstToken)
             {
-               
+               //Symbol Table 
                 symbolTable.AddCurrentString(idName);
                 symbolTable.AddType(inputFile);
                 inputFile.NextToken();
@@ -426,9 +429,6 @@ namespace Parser
             if (firstToken == currentToken)
             {
                 inputFile.NextToken();
-                //See a "{", so need to increase depth
-                symbolTable.AddCurrentStringToTokens();
-                symbolTable.AddNewDepth();
                 currentToken = inputFile.CurrentToken();
                 LocalDeclarationsPrime(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
@@ -436,11 +436,12 @@ namespace Parser
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == secondToken)
                 {
-                    inputFile.NextToken();
+                    
                     //need to add new depth before going up so does not delete the state before the one currently working on
                     symbolTable.AddNewDepth();
                     //See a "}", so need to decrease depth
                     symbolTable.GoUpDepth();
+                    inputFile.NextToken();
                 }
                 else
                 {
@@ -1219,7 +1220,11 @@ namespace Parser
                 if (currentToken == "keyword")
                 {
                     string keyword = inputFile.PeekAheadKeyword(currentIndex);
-                    symbolTable.ConcatTokenAfter(keyword);
+                    if(keyword != "void")
+                    {
+                        symbolTable.ConcatTokenAfter(keyword);
+                    }
+                    
                 }
 
                 currentIndex += 2;
@@ -1447,13 +1452,26 @@ namespace Parser
             return intermittentString;
         }
 
-        //public void CurrentTokenList()
-        //{
-        //    foreach (string t in tokens)
-        //    {
-        //        Console.WriteLine("Token in Tokens is " + t);
-        //    }
-        //}
+        public void CurrentTokenList()
+        {
+            foreach (string t in tokens)
+            {
+                Console.WriteLine("Token in Tokens is " + t);
+            }
+        }
+
+        public bool IsMainLast()
+        {
+            int length = tokens.Count;
+            length--;
+            string isMain = tokens[length];
+            string[] main = isMain.Split(' ');
+            if(main[0] == "main")
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }
 

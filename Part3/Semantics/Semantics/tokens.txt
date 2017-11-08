@@ -1,0 +1,50 @@
+keyword int
+
+id test
+
+(
+
+keyword int
+
+id x
+
+,
+
+keyword int
+
+id y
+
+)
+
+{
+
+}
+
+keyword void
+
+id main
+
+(
+
+keyword void
+
+)
+
+{
+
+keyword int
+
+id x
+
+;
+
+id x
+
+=
+
+int 2
+
+;
+
+}
+
