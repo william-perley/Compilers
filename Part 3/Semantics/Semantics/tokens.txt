@@ -1,10 +1,12 @@
-keyword void
+keyword int
 
 id main
 
 (
 
-keyword void
+keyword int
+
+id x
 
 )
 
@@ -20,9 +22,19 @@ keyword int
 
 id b
 
-=
+;
 
-int 2
+keyword return
+
+(
+
+id a
+
++
+
+id b
+
+)
 
 ;
 
