@@ -18,6 +18,12 @@ id y
 
 {
 
+keyword return
+
+id x
+
+;
+
 }
 
 keyword void
@@ -43,6 +49,20 @@ id x
 =
 
 int 2
+
+;
+
+id test
+
+(
+
+id x
+
+,
+
+id y
+
+)
 
 ;
 
