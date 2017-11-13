@@ -1,5 +1,5 @@
 ﻿/*William Perley N00636615
-* SPECIFICATION:
+ * SPECIFICATION:
 Your project is to use the grammar definition in the appendix
 of your text to guide the construction of a recursive descent parser.
 The parser should follow the grammar as described in A.2 page 492.
@@ -24,13 +24,13 @@ be included. A shar file, including all files necessary,
 (p2.txt in ascii format), and any other files) should be submitted 
 by the deadline using turnin as follows:
 
-  turnin fn ree4620_2
+   turnin fn ree4620_2
 
 By my typing    make    after unsharing your file I should see an
 executable called p2 (if you did your project in C) that will 
 perform the syntax analysis. The analyzer will be invoked with:
 
-  p2 test_fn
+   p2 test_fn
 
 where p2 is the executable resulting from the make command 
 (if done in C or C++) or is a script that executes your project (if
@@ -47,7 +47,7 @@ Thus, the makefile might be (as needed for python):
 
 -------------------------------------------------
 all:
-   @echo "no makefile necessary, project in python"
+	@echo "no makefile necessary, project in python"
 -------------------------------------------------
 
 the p1 script would then be:
@@ -96,7 +96,7 @@ namespace Parser
             FileBeingRead inputFile = new FileBeingRead();
             SymbolTable symbolTable = new SymbolTable();
             FunProgram(inputFile, symbolTable);
-            
+            //symbolTable.CurrentTokenList();
             bool oneMain = symbolTable.OneMain();
             if (oneMain == false)
             {
@@ -465,7 +465,7 @@ namespace Parser
         //Local-declarationsPrime -> type-specifier ID Y local-declarationPrime || Empty
         public static void LocalDeclarationsPrime(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
-            List<string> firstToken = new List<string>() { "int", "void", "float" };
+            List<string> firstToken = new List<string>() { "int", "float" };
             List<string> secondToken = new List<string>() { "id", "(", ";", "{", "int", "float" };
             List<string> thirdToken = new List<string>() { "if", "while", "return" };
             string fourthToken = "}";
@@ -485,7 +485,6 @@ namespace Parser
                     {
                         Reject();
                     }
-                    symbolTable.ValidLocalDeclaration();
                     symbolTable.AddCurrentStringToTokens();
                     inputFile.NextToken();
                 }
@@ -584,14 +583,14 @@ namespace Parser
             }
         }
         //Expression-Statement -> expression ; || ;
-        public static void ExpressionStatement(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
+        public static string ExpressionStatement(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "id", "(", "int", "float" };
             string secondToken = ";";
-            //project 3 semantics add return type
+
             if (firstToken.Contains(currentToken))
             {
-                Expression(inputFile, currentToken, symbolTable);
+                string e = Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == secondToken)
                 {
@@ -602,17 +601,20 @@ namespace Parser
                     Console.WriteLine("reject rule expressionstatement if and current token = " + currentToken);
                     Reject();
                 }
+                return e;
             }
             else if (currentToken == secondToken)
             {
                 symbolTable.AddCurrentStringToTokens();
                 inputFile.NextToken();
+                return "";
             }
             else
             {
                 Console.WriteLine("reject rule expressionstatement and current token = " + currentToken);
                 Reject();
             }
+            return "";
         }
         //Selection-Statement -> if A
         public static void SelectionStatement(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
@@ -751,10 +753,19 @@ namespace Parser
             string keywordToken = inputFile.KeyWord();
             if (keywordToken == firstToken)
             {
-                //Project 3 Semantic Check Return type
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                RuleU(inputFile, currentToken, symbolTable);
+                string u = RuleU(inputFile, currentToken, symbolTable);
+                if(u != ";" && u!= "")
+                {
+                    string type = symbolTable.VariableDataType(u);
+                    bool SameReturnTypes = symbolTable.ReturnTypesMatch(u);
+                    if (SameReturnTypes == false)
+                    {
+                        Reject();
+                    }
+                }
+                
             }
             else
             {
@@ -763,20 +774,21 @@ namespace Parser
             }
         }
         //U -> ExpressionStatement
-        public static void RuleU(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
+        public static string RuleU(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
-            //Project 3 Semantics Return string with type
             List<string> firstToken = new List<string>() { "id", "(", ";", "[", "int", "float" };
 
             if (firstToken.Contains(currentToken))
             {
-                ExpressionStatement(inputFile, currentToken, symbolTable);
+                string e = ExpressionStatement(inputFile, currentToken, symbolTable);
+                return e;
             }
             else
             {
                 Console.WriteLine("reject ruleu and current token = " + currentToken);
                 Reject();
             }
+            return "";
         }
         //Expression -> ID F || ( Expression ) TermPrime B S || num TermPrime B S
         public static string Expression(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
@@ -791,17 +803,31 @@ namespace Parser
             //Project 3 Semantic get left hand side Project 4 here
             if (currentToken == firstToken)
             {
+                string lhstype = "";
                 string leftHandSide = inputFile.IdName();
-                string lhsDataType = symbolTable.VariableDataType(leftHandSide);
-                //Will be sent back an error if data type cannot be found
-                //if (lhsDataType == "error")
-                //{
-                //    Reject();
-                //}
-                string leftHandSideSymbolTableInput = leftHandSide + " " + lhsDataType;
+                bool itd = symbolTable.IsTokenDeclared(leftHandSide);
+                if (itd == true)
+                {
+                    lhstype = symbolTable.VariableDataType(leftHandSide);
+                }
+
+                string rightHandSide = "";
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                RuleF(inputFile, currentToken, symbolTable);
+                if (currentToken != ";")
+                {
+                    rightHandSide = RuleF(inputFile, currentToken, symbolTable);
+                    SameTypeCheck(lhstype, rightHandSide);
+                    return lhstype;
+                    //project 4 here
+                }
+                else
+                {
+                    RuleF(inputFile, currentToken, symbolTable);
+                    currentToken = inputFile.CurrentToken();
+                    lhstype = symbolTable.VariableDataType(leftHandSide);
+                    return lhstype;
+                }
             }
             else if (currentToken == secondToken)
             {
@@ -815,9 +841,10 @@ namespace Parser
                     currentToken = inputFile.CurrentToken();
                     TermPrime(inputFile, currentToken, symbolTable);
                     currentToken = inputFile.CurrentToken();
-                    RuleB(inputFile, currentToken, symbolTable);
+                    string b = RuleB(inputFile, currentToken, symbolTable);
                     currentToken = inputFile.CurrentToken();
-                    RuleS(inputFile, currentToken, symbolTable);
+                    string s = RuleS(inputFile, currentToken, symbolTable);
+
                 }
                 else
                 {
@@ -832,14 +859,51 @@ namespace Parser
                 string t1 = currentToken;
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                string t2 = TermPrime(inputFile, currentToken, symbolTable);
-                //SameTypeCheck(t1, t2);
-                currentToken = inputFile.CurrentToken();
-                string t3 = RuleB(inputFile, currentToken, symbolTable);
-                //SameTypeCheck(t1, t3);
-                currentToken = inputFile.CurrentToken();
-                string t4 = RuleS(inputFile, currentToken, symbolTable);
-                //SameTypeCheck(t1, t4);
+                if (currentToken != ";")
+                {
+                    string t2 = TermPrime(inputFile, currentToken, symbolTable);
+                    currentToken = inputFile.CurrentToken();
+                    SameTypeCheck(t1, t2);
+                    if (currentToken != ";")
+                    {
+                        string t3 = RuleB(inputFile, currentToken, symbolTable);
+                        currentToken = inputFile.CurrentToken();
+                        SameTypeCheck(t2, t3);
+                        if (currentToken != ";")
+                        {
+                            string t4 = RuleS(inputFile, currentToken, symbolTable);
+                            currentToken = inputFile.CurrentToken();
+                            SameTypeCheck(t3, t4);
+                            return t4;
+                        }
+                        else
+                        {
+                            RuleS(inputFile, currentToken, symbolTable);
+                            currentToken = inputFile.CurrentToken();
+                            return t3;
+                        }
+                    }
+                    else
+                    {
+                        RuleB(inputFile, currentToken, symbolTable);
+                        currentToken = inputFile.CurrentToken();
+                        RuleS(inputFile, currentToken, symbolTable);
+                        currentToken = inputFile.CurrentToken();
+                        return t2;
+                    }
+                }
+                else
+                {
+                    TermPrime(inputFile, currentToken, symbolTable);
+                    //Check for ; and if false, keep going, else do more checks.
+                    //SameTypeCheck(t1, t2);
+                    currentToken = inputFile.CurrentToken();
+                    RuleB(inputFile, currentToken, symbolTable);
+                    currentToken = inputFile.CurrentToken();
+                    RuleS(inputFile, currentToken, symbolTable);
+                    currentToken = inputFile.CurrentToken();
+                    return t1;
+                }
             }
             else
             {
@@ -849,7 +913,7 @@ namespace Parser
             return "";
         }
         //F -> P G || ( Args ) TermPrime B || empty
-        public static void RuleF(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
+        public static string RuleF(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "[", "=", "*", "/", "<=", "<", ">", ">=", "==", "!=", "+", "-" };
             List<string> secondToken = new List<string>() { ";", ",", ")", "]" };
@@ -860,18 +924,20 @@ namespace Parser
             {
                 RuleP(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                RuleG(inputFile, currentToken, symbolTable);
+                string g = RuleG(inputFile, currentToken, symbolTable);
+                currentToken = inputFile.CurrentToken();
+                return g;
                 //Project 3 semantics do type checking here between ruleP and ruleg
             }
             else if (secondToken.Contains(currentToken))
             {
-                return ;
+                return "";
             }
             else if (currentToken == thirdToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Args(inputFile, currentToken, symbolTable);
+                string a = Args(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == fourthToken)
                 {
@@ -883,18 +949,23 @@ namespace Parser
                     Reject();
                 }
                 currentToken = inputFile.CurrentToken();
-                TermPrime(inputFile, currentToken, symbolTable);
+                string t = TermPrime(inputFile, currentToken, symbolTable);
+                SameTypeCheck(a, t);
                 currentToken = inputFile.CurrentToken();
-                RuleB(inputFile, currentToken, symbolTable);
+                string b = RuleB(inputFile, currentToken, symbolTable);
+                SameTypeCheck(a, b);
                 currentToken = inputFile.CurrentToken();
-                RuleS(inputFile, currentToken, symbolTable);
+                string s = RuleS(inputFile, currentToken, symbolTable);
+                SameTypeCheck(a, s);
+                currentToken = inputFile.CurrentToken();
+                return a;
             }
             else
             {
                 Console.WriteLine("reject rulef");
                 Reject();
             }
-            
+            return "";
         }
         //G -> = Expression || TermPrime B S
         public static string RuleG(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
@@ -909,17 +980,21 @@ namespace Parser
             }
             else if (secontToken.Contains(currentToken))
             {
-                string tp = TermPrime(inputFile, currentToken, symbolTable);
+                string t = TermPrime(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                string rb = RuleB(inputFile, currentToken, symbolTable);
+                string b = RuleB(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                string rs = RuleS(inputFile, currentToken, symbolTable);
+                string s = RuleS(inputFile, currentToken, symbolTable);
+                currentToken = inputFile.CurrentToken();
+                return t;
             }
             else if (currentToken == thirdToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Expression(inputFile, currentToken, symbolTable);
+                string e = Expression(inputFile, currentToken, symbolTable);
+                currentToken = inputFile.CurrentToken();
+                return e;
             }
             else
             {
@@ -979,9 +1054,21 @@ namespace Parser
                 currentToken = inputFile.CurrentToken();
                 string f = Factor(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                TermPrime(inputFile, currentToken, symbolTable);
+                string t = TermPrime(inputFile, currentToken, symbolTable);
+                SameTypeCheck(f, t);
                 currentToken = inputFile.CurrentToken();
-                RuleB(inputFile, currentToken, symbolTable);
+                string b = RuleB(inputFile, currentToken, symbolTable);
+                SameTypeCheck(f, b);
+                SameTypeCheck(t, b);
+                if (f == "")
+                {
+                    if (t == "")
+                    {
+                        return b;
+                    }
+                    return t;
+                }
+                return f;
             }
             else
             {
@@ -1022,9 +1109,21 @@ namespace Parser
                 currentToken = inputFile.CurrentToken();
                 string f = Factor(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
-                string tp = TermPrime(inputFile, currentToken, symbolTable);
+                string t = TermPrime(inputFile, currentToken, symbolTable);
+                SameTypeCheck(f, t);
                 currentToken = inputFile.CurrentToken();
-                string rb = RuleB(inputFile, currentToken, symbolTable);
+                string b = RuleB(inputFile, currentToken, symbolTable);
+                SameTypeCheck(f, b);
+                SameTypeCheck(t, b);
+                if (f == "")
+                {
+                    if (t == "")
+                    {
+                        return b;
+                    }
+                    return t;
+                }
+                return f;
             }
             else
             {
@@ -1061,14 +1160,17 @@ namespace Parser
             }
             else if (secondToken.Contains(currentToken))
             {
-                //Project 3 semantics Get lefthand side. match to rhs.
-                string lhs = inputFile.PreviousToken();
                 Mulop(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 string f = Factor(inputFile, currentToken, symbolTable);
-                //SameTypeCheck(lhs, f);
                 currentToken = inputFile.CurrentToken();
-                TermPrime(inputFile, currentToken, symbolTable);
+                string t = TermPrime(inputFile, currentToken, symbolTable);
+                SameTypeCheck(f, t);
+                if (f == "")
+                {
+                    return t;
+                }
+                return f;
             }
             else
             {
@@ -1102,13 +1204,12 @@ namespace Parser
             if (firstToken.Contains(currentToken))
             {
                 inputFile.NextToken();
-                return currentToken;
             }
             else if (secondToken == currentToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Expression(inputFile, currentToken, symbolTable);
+                string e = Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == fourthToken)
                 {
@@ -1119,12 +1220,22 @@ namespace Parser
                     Console.WriteLine("reject rule factor fourthtoken");
                     Reject();
                 }
+                return e;
             }
             else if (thirdToken == currentToken)
             {
+                //project 3 semantics
+                string id = inputFile.IdName();
+                string idt = symbolTable.VariableDataType(id);
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                RuleE(inputFile, currentToken, symbolTable);
+                string e = RuleE(inputFile, currentToken, symbolTable);
+                SameTypeCheck(idt, e);
+                if (idt == "")
+                {
+                    return e;
+                }
+                return idt;
             }
             else
             {
@@ -1134,7 +1245,7 @@ namespace Parser
             return "";
         }
         //E -> P || ( Args )
-        public static void RuleE(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
+        public static string RuleE(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { ";", ",", ")", "=", "*", "/", "<=", "<", ">", ">=", "==", "!=", "+", "-", "]" };
             string secondToken = "(";
@@ -1143,18 +1254,18 @@ namespace Parser
 
             if (firstToken.Contains(currentToken))
             {
-                return;
+                return "";
             }
             else if (secondToken == currentToken)
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Args(inputFile, currentToken, symbolTable);
+                string a = Args(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
                 if (currentToken == thirdToken)
                 {
                     inputFile.NextToken();
-                    return;
+                    return a;
                 }
                 else
                 {
@@ -1164,16 +1275,18 @@ namespace Parser
             }
             else if (currentToken == fourthToken)
             {
-                RuleP(inputFile, currentToken, symbolTable);
+                string p = RuleP(inputFile, currentToken, symbolTable);
+                return p;
             }
             else
             {
                 Console.WriteLine("reject rulee");
                 Reject();
             }
+            return "";
         }
         //Args -> Expression ArgsListPrime || empty
-        public static void Args(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
+        public static string Args(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             List<string> firstToken = new List<string>() { "id", "(" };
             List<string> secondToken = new List<string>() { "int", "float" };
@@ -1181,28 +1294,55 @@ namespace Parser
 
             if (firstToken.Contains(currentToken))
             {
-                Expression(inputFile, currentToken, symbolTable);
+                string id = inputFile.IdName();
+                string t = symbolTable.VariableDataType(id);
+                string e = Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
+                SameTypeCheck(t, e);
+                if (currentToken != ")")
+                {
+                    string a = ArgsListPrime(inputFile, currentToken, symbolTable);
+                    SameTypeCheck(e, a);
+                    SameTypeCheck(t, a);
+                    if (a == "")
+                    {
+                        return e;
+                    }
+                    return a;
+                }
                 ArgsListPrime(inputFile, currentToken, symbolTable);
+                return e;
             }
             else if (secondToken.Contains(currentToken))
             {
-                Expression(inputFile, currentToken, symbolTable);
+                string e = Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
+                if (currentToken != ")")
+                {
+                    string a = ArgsListPrime(inputFile, currentToken, symbolTable);
+                    SameTypeCheck(e, a);
+                    if (a == "")
+                    {
+                        return e;
+                    }
+                    return a;
+                }
                 ArgsListPrime(inputFile, currentToken, symbolTable);
+                return e;
             }
             else if (currentToken == thirdToken)
             {
-                return;
+                return "";
             }
             else
             {
                 Console.WriteLine("reject rule args");
                 Reject();
             }
+            return "";
         }
         //ArgsListPrime -> , Expression ArgsListPrime || empty
-        public static void ArgsListPrime(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
+        public static string ArgsListPrime(FileBeingRead inputFile, string currentToken, SymbolTable symbolTable)
         {
             string firstToken = ",";
             string secondToken = ")";
@@ -1211,19 +1351,31 @@ namespace Parser
             {
                 inputFile.NextToken();
                 currentToken = inputFile.CurrentToken();
-                Expression(inputFile, currentToken, symbolTable);
+                string e = Expression(inputFile, currentToken, symbolTable);
                 currentToken = inputFile.CurrentToken();
+                if (currentToken != ")")
+                {
+                    string a = ArgsListPrime(inputFile, currentToken, symbolTable);
+                    SameTypeCheck(e, a);
+                    if (a == "")
+                    {
+                        return e;
+                    }
+                    return a;
+                }
                 ArgsListPrime(inputFile, currentToken, symbolTable);
+                return e;
             }
             else if (currentToken == secondToken)
             {
-                return;
+                return "";
             }
             else
             {
                 Console.WriteLine("reject rule argslistprime");
                 Reject();
             }
+            return "";
         }
         public static int NumberOfArguments(FileBeingRead inputFile)
         {
@@ -1436,11 +1588,11 @@ namespace Parser
     class SymbolTable
     {
         int currentNodeIndex = 0;
+
         List<List<string>> depth = new List<List<string>>();
         List<string> tokens = new List<string>();
         string currentString = "";
-        string intermittentString = "t";
-        int intermittentNumber = 0;
+
 
         public void AddNewDepth()
         {
@@ -1490,38 +1642,41 @@ namespace Parser
         {
             foreach (List<string> t in depth)
             {
-                foreach (string s in tokens)
+                foreach (string s in t)
                 {
                     string[] r = s.Split(' ');
-                    string functionName = r[0] + " " + r[1];
-                    if (lhs == functionName)
+                    string functionName = r[0];
+                    string fullName = r[0] + " " + r[1];
+                    if (lhs == functionName || lhs == fullName)
                     {
                         return true;
                     }
                 }
             }
             List<string> temp = depth[0];
-            foreach (string s in tokens)
+
+            foreach (string s in temp)
             {
-                int x = 3;
-                int idName = 5;
-                int type = 4;
                 string[] r = s.Split(' ');
-                int numberOfArguments = Convert.ToInt32(r[2]);
-                if (numberOfArguments > 0)
+
+                if (r.Length >= 3)
                 {
-                    while (x < r.Length - 1)
+                    int idName = 4;
+                    int type = 3;
+                    int numberOfArguments = Convert.ToInt32(r[2]);
+                    while (idName < r.Length - 1)
                     {
-                        string arg = r[idName] + " " + r[type];
+                        string arg = r[idName];
                         if (arg == lhs)
                         {
                             return true;
                         }
-                        x += 2;
+
                         idName += 2;
                         type += 2;
                     }
                 }
+
             }
             return false;
         }
@@ -1535,7 +1690,7 @@ namespace Parser
             }
             return false;
         }
-        
+
         //Project 3 semantics Comment this out
         //public void CurrentTokenList()
         //{
@@ -1558,7 +1713,7 @@ namespace Parser
                 }
             }
             //Remove console
-            //Console.WriteLine("main count is " + mainCount);
+            // Console.WriteLine("main count is " + mainCount);
             if (mainCount == 1)
             {
                 return true;
@@ -1581,10 +1736,19 @@ namespace Parser
 
         public string VariableDataType(string lhs)
         {
-            //will check all of the tables to see if string exists. Will not matter for Function(outer most) layer, as strings would never match up. Need to look at arguments.
+
+            foreach (string p in tokens)
+            {
+                string[] r = p.Split(' ');
+                string functionName = r[0];
+                if (lhs == functionName)
+                {
+                    return r[1];
+                }
+            }
             foreach (List<string> t in depth)
             {
-                foreach (string s in tokens)
+                foreach (string s in t)
                 {
                     string[] r = s.Split(' ');
                     string functionName = r[0];
@@ -1595,66 +1759,76 @@ namespace Parser
                 }
 
             }
-            //Can only check the first function, so probably will not need this.
-            //int x = currentNodeIndex;
-            //while (x > 0)
-            //{
-            //    foreach (string s in tokens)
-            //    {
-            //        int idName = 4;
-            //        int type = 3;
-            //string[] r = s.Split(' ');
-            //int numberOfArguments = Convert.ToInt32(r[2]);
-            //if (numberOfArguments > 0)
-            //{
-            //    while (idName <= r.Length - 1)
-            //    {
-            //        string arg = r[idName];
-            //        if (arg == lhs)
-            //        {
-            //            return r[type];
-            //        }
-            //        idName += 2;
-            //        type += 2;
-                    //            }
-                    //        }
-                    //    }
-                    //    x--;
-
-                    //}
-                    //Will check the arguments of the current function
-                    int z = depth.Count - 1;
-            List < string > temp = depth[z];
-            int p = temp.Count;
-            string name = temp[p - 1];
-            int idName = 4;
-            int type = 3;
-            string[] v = name.Split(' ');
-            int numberOfArguments = Convert.ToInt32(v[2]);
-            if (numberOfArguments > 0)
+            int x = currentNodeIndex;
+            while (x > 0)
             {
-                while (idName <= v.Length - 1)
+                if (tokens.Count == 0)
                 {
-                    string arg = v[idName];
+                    foreach (string s in tokens)
+                    {
+                        int idName = 4;
+                        int type = 3;
+                        string[] r = s.Split(' ');
+                        int numberOfArguments = Convert.ToInt32(r[2]);
+                        if (numberOfArguments > 0)
+                        {
+                            while (idName <= r.Length - 1)
+                            {
+                                string arg = r[idName];
+                                if (arg == lhs)
+                                {
+                                    return r[type];
+                                }
+                                idName += 2;
+                                type += 2;
+                            }
+                        }
+                    }
+                }
+                x--;
+            }
+            int depthLevel = depth.Count;
+            List<string> lastEntry = depth[depthLevel - 1];
+            int lastToken = lastEntry.Count;
+            string lastString = lastEntry[lastToken - 1];
+            string[] b = lastString.Split(' ');
+            int numOfArgs = Convert.ToInt32(b[2]);
+
+            int name = 4;
+            int vartype = 3;
+            if (numOfArgs > 0)
+            {
+                while (name <= b.Length - 1)
+                {
+                    string arg = b[name];
                     if (arg == lhs)
                     {
-                        return v[type];
+                        return b[vartype];
                     }
-                    idName += 2;
-                    type += 2;
+                    name += 2;
+                    vartype += 2;
                 }
             }
             return "error";
         }
-
-        public void ValidLocalDeclaration()
+        public bool ReturnTypesMatch(string returnType)
         {
-            string[] ValidString = currentString.Split(' ');
-            string type = ValidString[1];
-            if(type == "void")
+            List<string> FunctionList = depth[0];
+            int functionCount = FunctionList.Count - 1;
+            string function = FunctionList[functionCount];
+            string[] functionRT = function.Split(' ');
+            string functionReturnType = functionRT[1];
+
+            if (functionReturnType == returnType)
             {
-                Program.Reject();
+                return true;
             }
+            if (returnType == "" && functionReturnType == "void")
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
