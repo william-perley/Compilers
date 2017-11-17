@@ -1,31 +1,3 @@
-keyword int
-
-id test
-
-(
-
-keyword int
-
-id x
-
-,
-
-keyword int
-
-id y
-
-)
-
-{
-
-keyword return
-
-id x
-
-;
-
-}
-
 keyword void
 
 id main
@@ -40,29 +12,29 @@ keyword void
 
 keyword int
 
-id x
+id q
 
 ;
 
-id x
+keyword int
+
+id b
+
+;
+
+id b
 
 =
 
-int 2
+id b
+
++
+
+id q
 
 ;
 
-id test
-
-(
-
-id x
-
-,
-
-id y
-
-)
+keyword return
 
 ;
 
